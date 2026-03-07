@@ -1,11 +1,8 @@
 /**
- * Footer – Slim page footer matching the NebulaLearn Figma design.
+ * Footer – Slim page footer for NebulaLearn.
  *
- * Left:  "© 2023 NebulaLearn for UTD Students" copyright notice.
- * Right: Support, Privacy, and Campus Status links.
- *
- * The footer sits at the very bottom of the page and spans the
- * full viewport width with a top border separator.
+ * Uses a subtle indigo bottom-border accent to tie back to the
+ * navbar gradient. Links shift to indigo on hover for brand cohesion.
  */
 
 export default function Footer() {
@@ -14,13 +11,13 @@ export default function Footer() {
       <div className="mx-auto flex max-w-3xl items-center justify-between text-[13px] text-gray-400">
         <span>&copy; 2023 NebulaLearn for UTD Students</span>
         <div className="flex gap-5">
-          <a href="#" className="transition-colors hover:text-gray-600">
+          <a href="#" className="transition-colors hover:text-nebula">
             Support
           </a>
-          <a href="#" className="transition-colors hover:text-gray-600">
+          <a href="#" className="transition-colors hover:text-nebula">
             Privacy
           </a>
-          <a href="#" className="transition-colors hover:text-gray-600">
+          <a href="#" className="transition-colors hover:text-nebula">
             Campus Status
           </a>
         </div>

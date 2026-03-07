@@ -23,7 +23,7 @@ import { scheduleClasses, walkingSegments, scheduleGap } from "@/lib/data";
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen flex-col bg-gray-50">
+    <div className="flex min-h-screen flex-col bg-background">
       <Navbar />
 
       <main className="flex-1 px-6 py-10">

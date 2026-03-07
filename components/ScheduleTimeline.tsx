@@ -1,27 +1,20 @@
 /**
  * ScheduleTimeline – Vertical timeline rendering a student's daily classes.
  *
- * The timeline is composed of three visual element types stitched together
- * by a thin vertical connector line:
+ * Color conventions:
+ *  - Nebula indigo (#4338CA)  → primary actions, upcoming badge, buttons,
+ *                                gap-card accents, and the "Campus Map" CTA.
+ *  - UTD Orange (#ec7524)     → "CURRENT CLASS" badge and active timeline
+ *                                dot — the eye is drawn here first.
+ *  - UTD Green (#114634)      → reserved for small success indicators
+ *                                (e.g. availability badges); not used
+ *                                inside the timeline itself.
  *
- *   ClassCard        – A bordered card for each class. Its left-edge
- *                      timeline dot is filled blue for "current", hollow
- *                      for everything else. A coloured badge communicates
- *                      the class's temporal status.
- *
- *   WalkingIndicator – A light-grey pill that sits between two consecutive
- *                      classes showing the estimated walk time, preceded
- *                      by a small footprints icon on the timeline rail.
- *
- *   GapCard          – A highlighted card (blue tint) that appears when
- *                      there is a long break between classes.  It contains
- *                      the gap duration, a motivational message, a map
- *                      thumbnail of the suggested study spot, and Navigate
- *                      / Summary action buttons.
- *
- * The parent component is responsible for ordering these elements; the
- * ScheduleTimeline export wires them together in the sequence shown in
- * the Figma spec.
+ * Visual element types:
+ *   ClassCard        – Card per class; orange dot for current, hollow for rest.
+ *   WalkingIndicator – Light pill showing walk time between classes.
+ *   GapCard          – Indigo-tinted card for long breaks with study spot
+ *                      suggestion and action buttons.
  */
 
 import {
@@ -37,8 +30,8 @@ import {
 import type { ScheduleClass, ScheduleGap, WalkingSegment } from "@/lib/types";
 
 const STATUS_BADGE_STYLE: Record<string, string> = {
-  current: "bg-blue-600 text-white",
-  upcoming: "border border-blue-600 text-blue-600 bg-white",
+  current: "bg-flame text-white",
+  upcoming: "border border-nebula text-nebula bg-white",
   "late-afternoon": "border border-gray-300 text-gray-500 bg-white",
 };
 
@@ -58,7 +51,7 @@ function ClassCard({ cls }: { cls: ScheduleClass }) {
         <div
           className={`z-10 mt-5 h-3 w-3 rounded-full border-2 ${
             isCurrent
-              ? "border-blue-600 bg-blue-600"
+              ? "border-flame bg-flame"
               : "border-gray-300 bg-white"
           }`}
         />
@@ -121,24 +114,24 @@ function GapCard({ gap }: { gap: ScheduleGap }) {
       {/* Timeline rail: clock icon on the connector */}
       <div className="relative flex w-10 shrink-0 flex-col items-center">
         <div className="w-px flex-1 bg-gray-200" />
-        <div className="z-10 flex h-6 w-6 items-center justify-center rounded-full bg-blue-50">
-          <Clock size={14} className="text-blue-600" />
+        <div className="z-10 flex h-6 w-6 items-center justify-center rounded-full bg-nebula-light">
+          <Clock size={14} className="text-nebula" />
         </div>
         <div className="w-px flex-1 bg-gray-200" />
       </div>
 
       {/* Gap card */}
-      <div className="my-3 flex-1 rounded-xl border border-blue-200 bg-blue-50/50 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+      <div className="my-3 flex-1 rounded-xl border border-indigo-200 bg-nebula-light/50 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
           {/* Left: gap info text */}
           <div className="flex-1 space-y-0.5 pt-1">
             <div className="flex items-center gap-2">
-              <Clock size={16} className="text-blue-600" />
-              <span className="text-sm font-bold text-blue-800">
+              <Clock size={16} className="text-nebula" />
+              <span className="text-sm font-bold text-indigo-900">
                 {gap.duration} Gap Detected
               </span>
             </div>
-            <p className="text-[13px] text-blue-600">{gap.message}</p>
+            <p className="text-[13px] text-nebula">{gap.message}</p>
           </div>
 
           {/* Right: suggested spot with map thumbnail */}
@@ -147,7 +140,7 @@ function GapCard({ gap }: { gap: ScheduleGap }) {
               <MapIcon size={26} className="text-gray-300" />
             </div>
             <div className="flex flex-col justify-center gap-1">
-              <span className="text-[9px] font-extrabold uppercase tracking-[0.08em] text-blue-600">
+              <span className="text-[9px] font-extrabold uppercase tracking-[0.08em] text-nebula">
                 {gap.suggestedSpot.badge}
               </span>
               <p className="text-sm font-bold text-gray-900 leading-snug">
@@ -169,7 +162,7 @@ function GapCard({ gap }: { gap: ScheduleGap }) {
         <div className="mt-4 flex gap-3">
           <button
             type="button"
-            className="flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
+            className="flex items-center gap-2 rounded-lg bg-nebula px-6 py-2 text-sm font-semibold text-white transition-colors hover:bg-nebula-dark"
           >
             <Navigation size={14} /> Navigate
           </button>
@@ -217,7 +210,7 @@ export default function ScheduleTimeline({
           </button>
           <button
             type="button"
-            className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-blue-700"
+            className="flex items-center gap-2 rounded-lg bg-nebula px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-nebula-dark"
           >
             <MapIcon size={15} /> Campus Map
           </button>

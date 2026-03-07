@@ -1,13 +1,44 @@
 @import "tailwindcss";
 
+/**
+ * Merges two identities:
+ *   Nebula Labs  – The vibrant blue-indigo → orange/red gradient from the
+ *                  brand image provides the primary indigo family used for
+ *                  the navbar, buttons, links, and card accents.
+ *   UTD          – Official Flame Orange (#ec7524) highlights the "now"
+ *                  state (current-class badge, active timeline dot).
+ *                  Official Green (#114634) is intentionally limited to
+ *                  small success/availability indicators so it never
+ *                  competes with the dominant indigo palette.
+ */
 :root {
-  --background: #f8f9fb;
-  --foreground: #111827;
+  --background: #f7f6f4;
+  --foreground: #1e1e2f;
+
+  /* Nebula primary family */
+  --nebula-indigo: #4338ca;
+  --nebula-indigo-dark: #3730a3;
+  --nebula-indigo-light: #eae7fd;
+
+  /* UTD accent colors */
+  --utd-orange: #ec7524;
+  --utd-orange-dark: #d4681f;
+  --utd-orange-light: #fef4ea;
+  --utd-green: #114634;
+  --utd-green-light: #e6f0ec;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-nebula: var(--nebula-indigo);
+  --color-nebula-dark: var(--nebula-indigo-dark);
+  --color-nebula-light: var(--nebula-indigo-light);
+  --color-flame: var(--utd-orange);
+  --color-flame-dark: var(--utd-orange-dark);
+  --color-flame-light: var(--utd-orange-light);
+  --color-utd-green: var(--utd-green);
+  --color-utd-green-light: var(--utd-green-light);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }

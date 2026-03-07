@@ -1,20 +1,21 @@
 /**
  * Navbar – Top navigation bar spanning the full viewport width.
  *
- * Left side:  NebulaLearn logo (stacked-layers SVG icon in a blue
- *             rounded square) followed by the brand name in white.
- * Right side: Student name, major/year label, and a circular avatar
- *             with the student's initials.
- *
- * The bar uses a solid blue (#1d4ed8) background matching the
- * Figma design's top strip.
+ * Background gradient mirrors the Nebula Labs brand image: deep indigo
+ * on the left transitioning through violet to a warm-tinted indigo on
+ * the right. A thin UTD-orange accent line runs along the bottom edge,
+ * subtly bridging the two brand identities without overwhelming the
+ * dark navbar surface.
  */
 
 export default function Navbar() {
   return (
-    <nav className="flex items-center justify-between bg-blue-700 px-8 py-3.5">
+    <nav className="relative flex items-center justify-between bg-gradient-to-r from-[#1e1b5e] via-[#4338ca] to-[#6d3fa0] px-8 py-3.5 shadow-lg">
+      {/* Thin UTD-orange bottom accent stripe */}
+      <div className="absolute inset-x-0 bottom-0 h-[3px] bg-gradient-to-r from-flame/0 via-flame to-flame/0" />
+
       <div className="flex items-center gap-2.5">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-900/40">
+        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/15 backdrop-blur-sm">
           <svg
             width="20"
             height="20"
@@ -37,7 +38,7 @@ export default function Navbar() {
       <div className="flex items-center gap-3">
         <div className="text-right leading-tight">
           <p className="text-sm font-semibold text-white">Temoc Student</p>
-          <p className="text-xs text-blue-200">Computer Science Senior</p>
+          <p className="text-xs text-indigo-200">Computer Science Senior</p>
         </div>
         <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-white/20 ring-2 ring-white/30">
           <span className="text-sm font-bold text-white">TS</span>
