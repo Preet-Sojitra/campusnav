@@ -1,5 +1,6 @@
-import { NextResponse } from "next/server";
 import { GoogleGenAI } from "@google/genai";
+import { NextResponse } from "next/server";
+import { getCourseName } from "@/lib/nebula";
 
 const ai = new GoogleGenAI({
     apiKey: process.env.GEMINI_API_KEY!,
@@ -29,51 +30,113 @@ export async function POST(req: Request) {
                     parts: [
                         {
                             text: `
-Extract the class schedule from this image.
+Extract all classes from this schedule image.
 
-Return ONLY valid JSON in this exact format:
+Return ONLY JSON:
+
 {
   "classes": [
     {
-      "day": "THU",
-      "courseCode": "SE 3341",
-      "courseName": "Lecture",
-      "startTime": "08:30",
-      "room": "JO 3.601"
+      "day": "MON",
+      "courseCode": "CS 3345",
+      "courseName": "",
+      "startTime": "13:00",
+      "room": "GR 2.530"
     }
   ]
 }
 
 Rules:
-- Use day values like MON, TUE, WED, THU, FRI
-- Use 24-hour HH:MM format
-- Return only JSON
-- One object per class meeting
+- Only JSON
+- HH:MM 24h
+- day = MON TUE WED THU FRI SAT SUN
+- keep courseCode even if name missing
+- room "" if missing
 `,
                         },
                         {
                             inlineData: {
-                                mimeType: file.type,
+                                mimeType: file.type || "image/jpeg",
                                 data: base64Image,
                             },
                         },
                     ],
                 },
             ],
+            config: {
+                responseMimeType: "application/json",
+            },
         });
 
         const text = result.text;
 
-        console.log("Gemini result:", text);
+        console.log("Raw Gemini:", text);
 
-        return NextResponse.json({
-            message: text,
-        });
+        if (!text) {
+            throw new Error("No Gemini text");
+        }
+
+        let parsedJson: any;
+
+        try {
+            parsedJson = JSON.parse(text);
+        } catch {
+            const clean = text
+                .replace(/```json/g, "")
+                .replace(/```/g, "")
+                .trim();
+
+            parsedJson = JSON.parse(clean);
+        }
+
+        console.log("Parsed:", parsedJson);
+
+
+        if (parsedJson?.classes && Array.isArray(parsedJson.classes)) {
+
+            for (const c of parsedJson.classes) {
+
+                if (c.courseCode) {
+
+                    const match = c.courseCode.match(/^([A-Za-z]+)[\s-]*(\d+[A-Za-z]*)/);
+
+                    if (match) {
+
+                        const prefix = match[1].toUpperCase();
+                        const number = match[2];
+
+                        try {
+
+                            const name = await getCourseName(prefix, number);
+
+                            if (name) {
+                                c.courseName = name;
+                            }
+
+                        } catch (err) {
+                            console.log("Nebula failed:", err);
+                        }
+
+                    }
+                }
+            }
+        }
+
+
+        console.log("Final:", parsedJson);
+
+        return NextResponse.json(parsedJson);
+
     } catch (err) {
+
         console.error(err);
 
         return NextResponse.json(
-            { error: "Gemini failed" },
+            {
+                error: "parse failed",
+                details: err instanceof Error ? err.message : String(err),
+                stack: err instanceof Error ? err.stack : undefined
+            },
             { status: 500 }
         );
     }

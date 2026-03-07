@@ -23,7 +23,7 @@ export default function Home() {
 
     const data = await res.json();
     console.log("Response:", data);
-    alert(data.message);
+    alert(JSON.stringify(data, null, 2));
   }
 
   return (
