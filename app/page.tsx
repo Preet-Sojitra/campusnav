@@ -1,12 +1,15 @@
 "use client"
 
 import { useState, useRef } from "react";
+import { useRouter } from "next/navigation";
+import { useSchedule } from "./context/ScheduleContext";
 
 export default function Home() {
+  const router = useRouter();
+  const { uploadFile } = useSchedule();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
-  const [uploadStatus, setUploadStatus] = useState<"idle" | "uploading" | "success" | "error">("idle");
 
   const ACCEPTED_TYPES = ["image/png", "image/jpeg", "application/pdf"];
   const MAX_SIZE = 10 * 1024 * 1024; // 10 MB
@@ -21,24 +24,8 @@ export default function Home() {
       return;
     }
     setSelectedFile(file);
-    setUploadStatus("idle");
     uploadFile(file);
-  }
-
-  async function uploadFile(file: File) {
-    setUploadStatus("uploading");
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-      const res = await fetch("/api/upload", { method: "POST", body: formData });
-      if (!res.ok) throw new Error("Upload failed");
-      const data = await res.json();
-      console.log("Upload response:", data);
-      setUploadStatus("success");
-    } catch (err) {
-      console.error(err);
-      setUploadStatus("error");
-    }
+    router.push("/dashboard");
   }
 
   return (
@@ -246,9 +233,6 @@ export default function Home() {
                   style={{ color: "var(--color-text-secondary)" }}
                 >
                   {(selectedFile.size / 1024).toFixed(1)} KB
-                  {uploadStatus === "uploading" && " · Uploading…"}
-                  {uploadStatus === "success" && " · ✓ Uploaded"}
-                  {uploadStatus === "error" && " · ✗ Failed"}
                 </p>
               </>
             ) : (
