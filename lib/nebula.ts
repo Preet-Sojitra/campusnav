@@ -25,11 +25,6 @@ export async function getCourseName(prefix: string, number: string): Promise<str
         const json = await response.json();
 
         if (json?.data && Array.isArray(json.data) && json.data.length > 0) {
-            // Courses are returned as an array, return the title of the first match
-            // Typically the array is sorted by catalog year, so the last element 
-            // might be the most recent. The first element works fine too.
-            // Let's get the one with the highest catalog year to be safe,
-            // or just the last element in the array which seems to be 2025.
             const latestCourse = json.data[json.data.length - 1];
             return latestCourse.title ? latestCourse.title.trim() : "";
         }
