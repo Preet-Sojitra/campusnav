@@ -1,66 +1,147 @@
 "use client";
 
-import { useState } from "react";
-import { useSchedule } from "../context/ScheduleContext";
-import Link from "next/link";
+/**
+ * Dashboard Page – Shows the schedule timeline with real API data.
+ * Supports day switching via the ScheduleContext.
+ */
 
-export default function DashboardPage() {
-    const { classes, routes, isLoading, error } = useSchedule();
+import { useSearchParams } from "next/navigation";
+import Navbar from "@/components/Navbar";
+import ScheduleTimeline from "@/components/ScheduleTimeline";
+import NearbySpaces from "@/components/NearbySpaces";
+import CampusTransit from "@/components/CampusTransit";
+import Footer from "@/components/Footer";
+import { useSchedule } from "@/app/context/ScheduleContext";
+import {
+    scheduleClasses as demoClasses,
+    walkingSegments as demoWalking,
+    scheduleGap as demoGap,
+    nearbySpaces,
+    campusTransit,
+} from "@/lib/data";
+import { useVirtualClock, parseScheduleTime } from "@/lib/virtual-clock";
+import { useLeaveByToast } from "@/lib/useLeaveByToast";
+import { useDynamicRooms } from "@/lib/useDynamicRooms";
+import Link from "next/link";
+import { Suspense, useMemo } from "react";
+
+function DashboardContent() {
+    const searchParams = useSearchParams();
+    const isDemo = searchParams.get("demo") === "1";
+    const {
+        classes,
+        walkingSegments,
+        gaps,
+        isLoading,
+        error,
+        hasRealData,
+        availableDays,
+        selectedDay,
+        setSelectedDay,
+    } = useSchedule();
+    const { now } = useVirtualClock();
+
+    const useDemo = isDemo || (!hasRealData && !isLoading && !error);
+    // Fire toast notifications when leave-by times are crossed
+    // (we'll call this after resolving which class set to use)
+
+    const scheduleClasses = useDemo ? demoClasses : classes;
+    const scheduleWalking = useDemo ? demoWalking : walkingSegments;
+
+    // Determine dynamic rooms (uses the concrete ScheduleClass[] shape)
+    const { primaryEmptyRoom, sidebarEmptyRooms, fromRoom } = useDynamicRooms(
+        scheduleClasses,
+        now,
+        useDemo,
+        selectedDay,
+    );
+
+    // Fire leave-by toasts using the resolved schedule classes
+    useLeaveByToast(scheduleClasses, now);
+
+    // Build gap card: use real empty room data if available
+    let scheduleGap = useDemo
+        ? demoGap
+        : gaps[0] || {
+            duration: "0m",
+            durationMinutes: 0,
+            message: "",
+            suggestedSpot: { name: "", badge: "", walkTime: "", amenity: "" },
+        };
+
+    // Override gap's suggested spot with the closest real empty room
+    if (!useDemo && primaryEmptyRoom && gaps[0] && gaps[0].durationMinutes > 0) {
+        const firstGap = gaps[0];
+        scheduleGap = {
+            duration: firstGap.duration,
+            durationMinutes: firstGap.durationMinutes,
+            message: "Maximize your time between classes",
+            directionsUrl: primaryEmptyRoom._directionsUrl || null,
+            suggestedSpot: {
+                name: primaryEmptyRoom.room,
+                badge: "CLOSEST EMPTY ROOM",
+                walkTime: primaryEmptyRoom._walkDurationStr || "Nearest available",
+                amenity: "Empty classroom",
+            },
+        };
+    }
+
+    // Determine if NearbySpaces should be visible:
+    // Show when there's a gap AND we're within 15 min before gap starts or during the gap
+    const showNearbySpaces = useMemo(() => {
+        if (useDemo) return true; // Always show in demo mode
+
+        const activeClasses = useDemo ? demoClasses : classes;
+        if (gaps.length === 0 || activeClasses.length < 2) return false;
+
+        // Find the gap between classes
+        for (let i = 0; i < activeClasses.length - 1; i++) {
+            const currentEnd = parseScheduleTime(activeClasses[i].endTime, now);
+            const nextStart = parseScheduleTime(activeClasses[i + 1].startTime, now);
+            const gapMs = nextStart.getTime() - currentEnd.getTime();
+            const gapMinutes = gapMs / 60000;
+
+            if (gapMinutes >= 45) {
+                // Gap found — show sidebar from 15 min before gap starts until gap ends
+                const showFromMs = currentEnd.getTime() - 15 * 60000;
+                const showUntilMs = nextStart.getTime();
+                const nowMs = now.getTime();
+
+                if (nowMs >= showFromMs && nowMs <= showUntilMs) {
+                    return true;
+                }
+            }
+        }
+
+        // Also show if we have empty room data (API returned results)
+        return sidebarEmptyRooms.length > 0;
+    }, [useDemo, classes, gaps, now, sidebarEmptyRooms]);
 
     /* ─── Loading State ─── */
     if (isLoading) {
         return (
-            <div className="min-h-screen bg-bg-page font-sans">
-                <Nav />
-                <main className="mx-auto max-w-2xl px-4 py-16 text-center">
-                    <div
-                        className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-xl"
-                        style={{ backgroundColor: "var(--color-icon-bg)" }}
-                    >
-                        <svg
-                            className="animate-spin"
-                            width="28"
-                            height="28"
-                            viewBox="0 0 28 28"
-                            fill="none"
-                        >
-                            <circle
-                                cx="14"
-                                cy="14"
-                                r="12"
-                                stroke="var(--color-border)"
-                                strokeWidth="2.5"
-                            />
-                            <path
-                                d="M14 2A12 12 0 0 1 26 14"
-                                stroke="var(--color-primary)"
-                                strokeWidth="2.5"
-                                strokeLinecap="round"
-                            />
-                        </svg>
-                    </div>
-                    <h2
-                        className="text-xl font-bold"
-                        style={{ color: "var(--color-text-primary)" }}
-                    >
-                        <span className="loading-ellipsis">Analyzing your schedule</span>
-                    </h2>
-                    <p
-                        className="mt-2 text-sm"
-                        style={{ color: "var(--color-text-secondary)" }}
-                    >
-                        Extracting classes and finding the best routes…
-                    </p>
-                    <div
-                        className="mx-auto mt-6 h-1.5 w-48 overflow-hidden rounded-full"
-                        style={{ backgroundColor: "var(--color-border)" }}
-                    >
-                        <div
-                            className="loading-progress-bar h-full rounded-full"
-                            style={{ backgroundColor: "var(--color-primary)" }}
-                        />
+            <div className="flex min-h-screen flex-col bg-background">
+                <Navbar />
+                <main className="flex-1 flex items-center justify-center px-4 py-16">
+                    <div className="text-center">
+                        <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-xl bg-nebula-light">
+                            <svg className="animate-spin" width="28" height="28" viewBox="0 0 28 28" fill="none">
+                                <circle cx="14" cy="14" r="12" stroke="#e5e7eb" strokeWidth="2.5" />
+                                <path d="M14 2A12 12 0 0 1 26 14" stroke="#4338ca" strokeWidth="2.5" strokeLinecap="round" />
+                            </svg>
+                        </div>
+                        <h2 className="text-xl font-bold text-gray-900">
+                            <span className="loading-ellipsis">Analyzing your schedule</span>
+                        </h2>
+                        <p className="mt-2 text-sm text-gray-500">
+                            Extracting classes and finding the best routes…
+                        </p>
+                        <div className="mx-auto mt-6 h-1.5 w-48 overflow-hidden rounded-full bg-gray-200">
+                            <div className="loading-progress-bar h-full rounded-full bg-nebula" />
+                        </div>
                     </div>
                 </main>
+                <Footer />
             </div>
         );
     }
@@ -68,488 +149,87 @@ export default function DashboardPage() {
     /* ─── Error State ─── */
     if (error) {
         return (
-            <div className="min-h-screen bg-bg-page font-sans">
-                <Nav />
-                <main className="mx-auto max-w-2xl px-4 py-16 text-center">
-                    <div
-                        className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl"
-                        style={{ backgroundColor: "#fef2f2" }}
-                    >
-                        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-                            <circle cx="14" cy="14" r="12" stroke="#ef4444" strokeWidth="2" />
-                            <path
-                                d="M14 9V15M14 19H14.01"
-                                stroke="#ef4444"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                            />
-                        </svg>
+            <div className="flex min-h-screen flex-col bg-background">
+                <Navbar />
+                <main className="flex-1 flex items-center justify-center px-4 py-16">
+                    <div className="text-center">
+                        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-red-50">
+                            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                                <circle cx="14" cy="14" r="12" stroke="#ef4444" strokeWidth="2" />
+                                <path d="M14 9V15M14 19H14.01" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" />
+                            </svg>
+                        </div>
+                        <h2 className="text-xl font-bold text-gray-900">Something went wrong</h2>
+                        <p className="mt-2 text-sm text-gray-500">{error}</p>
+                        <Link
+                            href="/"
+                            className="mt-6 inline-block rounded-lg bg-nebula px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-nebula-dark"
+                        >
+                            ← Try Again
+                        </Link>
                     </div>
-                    <h2
-                        className="text-xl font-bold"
-                        style={{ color: "var(--color-text-primary)" }}
-                    >
-                        Something went wrong
-                    </h2>
-                    <p
-                        className="mt-2 text-sm"
-                        style={{ color: "var(--color-text-secondary)" }}
-                    >
-                        {error}
-                    </p>
-                    <Link
-                        href="/"
-                        className="mt-6 inline-block rounded-full px-6 py-2.5 text-sm font-semibold text-white transition-colors"
-                        style={{ backgroundColor: "var(--color-primary)" }}
-                    >
-                        ← Try Again
-                    </Link>
                 </main>
+                <Footer />
             </div>
         );
     }
-
-    /* ─── Empty State ─── */
-    if (classes.length === 0) {
-        return (
-            <div className="min-h-screen bg-bg-page font-sans">
-                <Nav />
-                <main className="mx-auto max-w-2xl px-4 py-16 text-center">
-                    <div
-                        className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl"
-                        style={{ backgroundColor: "var(--color-icon-bg)" }}
-                    >
-                        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-                            <rect
-                                x="3"
-                                y="5"
-                                width="22"
-                                height="20"
-                                rx="3"
-                                stroke="var(--color-icon-text)"
-                                strokeWidth="2"
-                            />
-                            <path d="M3 11H25" stroke="var(--color-icon-text)" strokeWidth="2" />
-                            <path d="M9 3V7" stroke="var(--color-icon-text)" strokeWidth="2" strokeLinecap="round" />
-                            <path d="M19 3V7" stroke="var(--color-icon-text)" strokeWidth="2" strokeLinecap="round" />
-                        </svg>
-                    </div>
-                    <h2
-                        className="text-xl font-bold"
-                        style={{ color: "var(--color-text-primary)" }}
-                    >
-                        No schedule uploaded yet
-                    </h2>
-                    <p
-                        className="mt-2 text-sm"
-                        style={{ color: "var(--color-text-secondary)" }}
-                    >
-                        Upload your schedule to see directions between your classes.
-                    </p>
-                    <Link
-                        href="/"
-                        className="mt-6 inline-block rounded-full px-6 py-2.5 text-sm font-semibold text-white transition-colors"
-                        style={{ backgroundColor: "var(--color-primary)" }}
-                    >
-                        ← Upload Schedule
-                    </Link>
-                </main>
-            </div>
-        );
-    }
-
-    /* ─── Main: Route Cards ─── */
-    const routesLoading = routes.some((r) => r.loading);
 
     return (
-        <div className="min-h-screen bg-bg-page font-sans">
-            <Nav />
+        <div className="flex min-h-screen flex-col bg-background">
+            <Navbar />
 
-            <main className="mx-auto max-w-2xl px-4 py-10">
-                {/* Header */}
-                <div className="mb-8 text-center">
-                    <h1
-                        className="text-2xl font-bold"
-                        style={{ color: "var(--color-text-primary)" }}
-                    >
-                        Your Class Routes
-                    </h1>
-                    <p
-                        className="mt-1 text-sm"
-                        style={{ color: "var(--color-text-secondary)" }}
-                    >
-                        {classes.length} classes found · {routes.length} route
-                        {routes.length !== 1 ? "s" : ""} between consecutive classes
-                        {routesLoading && " · Resolving…"}
-                    </p>
-                </div>
+            <main className="flex-1 px-6 py-10">
+                <div className="mx-auto max-w-6xl grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-8 items-start">
+                    {/* Left: Schedule timeline */}
+                    <ScheduleTimeline
+                        classes={scheduleClasses}
+                        walkingSegments={scheduleWalking}
+                        gap={scheduleGap}
+                        virtualNow={now}
+                        availableDays={useDemo ? [] : availableDays}
+                        selectedDay={useDemo ? "" : selectedDay}
+                        onDayChange={useDemo ? undefined : setSelectedDay}
+                    />
 
-                {/* ─── Classes Summary ─── */}
-                <section className="mb-8">
-                    <h2
-                        className="mb-3 text-sm font-semibold tracking-wide uppercase"
-                        style={{ color: "var(--color-text-muted)" }}
-                    >
-                        Classes
-                    </h2>
-                    <div
-                        className="overflow-hidden rounded-xl"
-                        style={{
-                            backgroundColor: "var(--color-bg-card)",
-                            boxShadow: "var(--shadow-card)",
-                        }}
-                    >
-                        {classes.map((c, i) => (
-                            <div
-                                key={`${c.day}-${c.courseCode}-${c.startTime}-${i}`}
-                                className="flex items-center gap-4 px-5 py-3"
-                                style={{
-                                    borderBottom:
-                                        i < classes.length - 1
-                                            ? "1px solid var(--color-border)"
-                                            : "none",
-                                }}
-                            >
-                                {/* Day badge */}
-                                <span
-                                    className="shrink-0 rounded-md px-2 py-0.5 text-xs font-bold"
-                                    style={{
-                                        backgroundColor: "var(--color-primary-light)",
-                                        color: "var(--color-primary)",
-                                    }}
-                                >
-                                    {c.day}
-                                </span>
-                                {/* Course info */}
-                                <div className="min-w-0 flex-1">
-                                    <p
-                                        className="truncate text-sm font-semibold"
-                                        style={{ color: "var(--color-text-primary)" }}
-                                    >
-                                        {c.courseCode}
-                                        {c.courseName ? ` — ${c.courseName}` : ""}
-                                    </p>
-                                    <p
-                                        className="text-xs"
-                                        style={{ color: "var(--color-text-secondary)" }}
-                                    >
-                                        {c.startTime} · {c.room}
-                                    </p>
+                    {/* Right: Sidebar */}
+                    <aside className="flex flex-col gap-5 lg:sticky lg:top-6">
+                        {showNearbySpaces ? (
+                            <NearbySpaces
+                                spaces={nearbySpaces}
+                                emptyRooms={useDemo ? [] : sidebarEmptyRooms}
+                                fromRoom={useDemo ? null : fromRoom}
+                            />
+                        ) : (
+                            <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+                                <div className="flex items-center gap-2 mb-3">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4338ca" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                                        <circle cx="12" cy="10" r="3" />
+                                    </svg>
+                                    <h3 className="text-[15px] font-extrabold text-gray-900">
+                                        Nearby Empty Classes
+                                    </h3>
+                                </div>
+                                <div className="rounded-lg border border-dashed border-gray-200 bg-gray-50/50 px-4 py-6 text-center">
+                                    <p className="text-sm text-gray-400 font-medium">No large gaps detected</p>
+                                    <p className="mt-1 text-xs text-gray-300">Room suggestions appear when you have 45+ min between classes</p>
                                 </div>
                             </div>
-                        ))}
-                    </div>
-                </section>
-
-                {/* ─── Route Cards ─── */}
-                {routes.length > 0 && (
-                    <section>
-                        <h2
-                            className="mb-3 text-sm font-semibold tracking-wide uppercase"
-                            style={{ color: "var(--color-text-muted)" }}
-                        >
-                            Directions
-                        </h2>
-                        <div className="flex flex-col gap-4">
-                            {routes.map((route, i) => (
-                                <RouteCard key={i} route={route} />
-                            ))}
-                        </div>
-                    </section>
-                )}
-
-                {routes.length === 0 && classes.length > 0 && (
-                    <p
-                        className="mt-4 text-center text-sm"
-                        style={{ color: "var(--color-text-secondary)" }}
-                    >
-                        No consecutive class pairs found on the same day.
-                    </p>
-                )}
-
-                {/* Back link */}
-                <div className="mt-10 text-center">
-                    <Link
-                        href="/"
-                        className="text-sm font-semibold transition-opacity hover:opacity-80"
-                        style={{ color: "var(--color-primary)" }}
-                    >
-                        ← Upload a different schedule
-                    </Link>
+                        )}
+                        <CampusTransit transit={campusTransit} />
+                    </aside>
                 </div>
             </main>
+
+            <Footer />
         </div>
     );
 }
 
-/* ───────────────────────────── Route Card ───────────────────────────── */
-
-function RouteCard({ route }: { route: import("../context/ScheduleContext").RouteEntry }) {
-    const { from, to, directionsUrl, formattedDuration, loading, error } = route;
-    const [showMap, setShowMap] = useState(false);
-
+export default function DashboardPage() {
     return (
-        <div
-            className="rounded-xl p-5 transition-shadow hover:shadow-md"
-            style={{
-                backgroundColor: "var(--color-bg-card)",
-                boxShadow: "var(--shadow-card)",
-            }}
-        >
-            {/* From → To row */}
-            <div className="flex items-center gap-3">
-                {/* FROM */}
-                <div className="min-w-0 flex-1">
-                    <p
-                        className="text-xs font-semibold uppercase tracking-wide"
-                        style={{ color: "var(--color-text-muted)" }}
-                    >
-                        From
-                    </p>
-                    <p
-                        className="mt-0.5 truncate text-sm font-bold"
-                        style={{ color: "var(--color-text-primary)" }}
-                    >
-                        {from.room}
-                    </p>
-                    <p
-                        className="text-xs"
-                        style={{ color: "var(--color-text-secondary)" }}
-                    >
-                        {from.courseCode} · {from.startTime}
-                    </p>
-                </div>
-
-                {/* Arrow */}
-                <div className="shrink-0">
-                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-                        <path
-                            d="M6 14H22M22 14L16 8M22 14L16 20"
-                            stroke="var(--color-primary)"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                        />
-                    </svg>
-                </div>
-
-                {/* TO */}
-                <div className="min-w-0 flex-1 text-right">
-                    <p
-                        className="text-xs font-semibold uppercase tracking-wide"
-                        style={{ color: "var(--color-text-muted)" }}
-                    >
-                        To
-                    </p>
-                    <p
-                        className="mt-0.5 truncate text-sm font-bold"
-                        style={{ color: "var(--color-text-primary)" }}
-                    >
-                        {to.room}
-                    </p>
-                    <p
-                        className="text-xs"
-                        style={{ color: "var(--color-text-secondary)" }}
-                    >
-                        {to.courseCode} · {to.startTime}
-                    </p>
-                </div>
-            </div>
-
-            {/* Walking duration badge */}
-            {formattedDuration && (
-                <div
-                    className="mt-3 flex items-center justify-center gap-1.5 rounded-lg py-1.5 text-xs font-semibold"
-                    style={{
-                        backgroundColor: "var(--color-primary-light)",
-                        color: "var(--color-primary)",
-                    }}
-                >
-                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                        <circle cx="7" cy="7" r="6" stroke="currentColor" strokeWidth="1.5" />
-                        <path d="M7 4V7.5L9.5 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                    🚶 {formattedDuration} walk
-                </div>
-            )}
-
-            {/* Action */}
-            <div className="mt-4">
-                {loading ? (
-                    <div className="flex items-center justify-center gap-2 py-2">
-                        <svg
-                            className="animate-spin"
-                            width="16"
-                            height="16"
-                            viewBox="0 0 16 16"
-                            fill="none"
-                        >
-                            <circle
-                                cx="8"
-                                cy="8"
-                                r="6"
-                                stroke="var(--color-border)"
-                                strokeWidth="2"
-                            />
-                            <path
-                                d="M8 2A6 6 0 0 1 14 8"
-                                stroke="var(--color-primary)"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                            />
-                        </svg>
-                        <span
-                            className="text-xs font-medium"
-                            style={{ color: "var(--color-text-secondary)" }}
-                        >
-                            Resolving route…
-                        </span>
-                    </div>
-                ) : error ? (
-                    <p
-                        className="rounded-lg px-4 py-2 text-center text-xs font-medium"
-                        style={{ backgroundColor: "#fef2f2", color: "#ef4444" }}
-                    >
-                        Could not resolve route — {error}
-                    </p>
-                ) : directionsUrl ? (
-                    <>
-                        <button
-                            onClick={() => setShowMap((v) => !v)}
-                            className="flex w-full items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-semibold text-white transition-colors"
-                            style={{ backgroundColor: "var(--color-primary)" }}
-                            onMouseOver={(e) =>
-                            ((e.currentTarget as HTMLElement).style.backgroundColor =
-                                "var(--color-primary-hover)")
-                            }
-                            onMouseOut={(e) =>
-                            ((e.currentTarget as HTMLElement).style.backgroundColor =
-                                "var(--color-primary)")
-                            }
-                        >
-                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                <path
-                                    d="M8 1C4.686 1 2 3.686 2 7C2 11.5 8 15 8 15C8 15 14 11.5 14 7C14 3.686 11.314 1 8 1Z"
-                                    stroke="white"
-                                    strokeWidth="1.5"
-                                    strokeLinejoin="round"
-                                />
-                                <circle cx="8" cy="7" r="2" stroke="white" strokeWidth="1.5" />
-                            </svg>
-                            {showMap ? "Hide Map" : "Show Map"}
-                        </button>
-
-                        {showMap && (
-                            <div className="mt-3 overflow-hidden rounded-lg" style={{ border: "1px solid var(--color-border)" }}>
-                                <iframe
-                                    src={directionsUrl}
-                                    title="Campus Map Directions"
-                                    className="w-full border-0"
-                                    style={{ height: "400px" }}
-                                    allow="geolocation"
-                                />
-                            </div>
-                        )}
-
-                        <a
-                            href={directionsUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="mt-2 flex items-center justify-center gap-1 text-xs font-medium transition-opacity hover:opacity-80"
-                            style={{ color: "var(--color-primary)" }}
-                        >
-                            Open in new tab ↗
-                        </a>
-                    </>
-                ) : (
-                    <p
-                        className="rounded-lg px-4 py-2 text-center text-xs font-medium"
-                        style={{
-                            backgroundColor: "var(--color-primary-light)",
-                            color: "var(--color-text-secondary)",
-                        }}
-                    >
-                        Room not found on campus map
-                    </p>
-                )}
-            </div>
-        </div>
-    );
-}
-
-/* ───────────────────────────── Shared Nav ───────────────────────────── */
-
-function Nav() {
-    return (
-        <nav
-            className="flex items-center justify-between border-b px-6 py-3"
-            style={{
-                backgroundColor: "var(--color-navbar-bg)",
-                borderColor: "var(--color-navbar-border)",
-            }}
-        >
-            <Link href="/" className="flex items-center gap-2 no-underline">
-                <svg
-                    width="28"
-                    height="28"
-                    viewBox="0 0 28 28"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                >
-                    <rect width="28" height="28" rx="6" fill="var(--color-primary)" />
-                    <path
-                        d="M8 10L14 7L20 10V18L14 21L8 18V10Z"
-                        stroke="white"
-                        strokeWidth="1.5"
-                        strokeLinejoin="round"
-                    />
-                    <path
-                        d="M14 14L20 10M14 14L8 10M14 14V21"
-                        stroke="white"
-                        strokeWidth="1.5"
-                        strokeLinejoin="round"
-                    />
-                </svg>
-                <span
-                    className="text-lg font-bold"
-                    style={{ color: "var(--color-primary)" }}
-                >
-                    NebulaLearn
-                </span>
-            </Link>
-
-            <div className="flex items-center gap-4">
-                <Link
-                    href="/"
-                    className="text-sm font-medium no-underline"
-                    style={{ color: "var(--color-text-secondary)" }}
-                >
-                    Upload
-                </Link>
-                <svg
-                    width="32"
-                    height="32"
-                    viewBox="0 0 32 32"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                >
-                    <circle
-                        cx="16"
-                        cy="16"
-                        r="15"
-                        stroke="var(--color-border)"
-                        strokeWidth="1.5"
-                        fill="var(--color-bg-card)"
-                    />
-                    <circle cx="16" cy="13" r="4" fill="var(--color-primary)" />
-                    <path
-                        d="M8 25C8 21 11.5 18 16 18C20.5 18 24 21 24 25"
-                        stroke="var(--color-primary)"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                    />
-                </svg>
-            </div>
-        </nav>
+        <Suspense>
+            <DashboardContent />
+        </Suspense>
     );
 }

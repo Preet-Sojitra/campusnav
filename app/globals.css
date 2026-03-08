@@ -1,78 +1,56 @@
 @import "tailwindcss";
 
-/* ─── Theme Variables ─── */
+/**
+ * Merges two identities:
+ *   Nebula Labs  – The vibrant blue-indigo → orange/red gradient from the
+ *                  brand image provides the primary indigo family used for
+ *                  the navbar, buttons, links, and card accents.
+ *   UTD          – Official Flame Orange (#ec7524) highlights the "now"
+ *                  state (current-class badge, active timeline dot).
+ *                  Official Green (#114634) is intentionally limited to
+ *                  small success/availability indicators so it never
+ *                  competes with the dominant indigo palette.
+ */
 :root {
-  /* Primary brand */
-  --color-primary: #1a56db;
-  --color-primary-hover: #1646b8;
-  --color-primary-light: #e8eefb;
+  --background: #f7f6f4;
+  --foreground: #1e1e2f;
 
-  /* Backgrounds */
-  --color-bg-page: #f3f4f6;
-  --color-bg-card: #ffffff;
+  /* Nebula primary family */
+  --nebula-indigo: #4338ca;
+  --nebula-indigo-dark: #3730a3;
+  --nebula-indigo-light: #eae7fd;
 
-  /* Text */
-  --color-text-primary: #111827;
-  --color-text-secondary: #6b7280;
-  --color-text-muted: #9ca3af;
-
-  /* Borders */
-  --color-border: #e5e7eb;
-  --color-border-dashed: #d1d5db;
-
-  /* Badge (privacy) */
-  --color-badge-bg: #f0fdf4;
-  --color-badge-text: #166534;
-  --color-badge-border: #bbf7d0;
-
-  /* Navbar */
-  --color-navbar-bg: #ffffff;
-  --color-navbar-border: #e5e7eb;
-
-  /* Misc */
-  --color-icon-bg: #e8eefb;
-  --color-icon-text: #1a56db;
-  --color-divider-text: #9ca3af;
-
-  /* Radii */
-  --radius-card: 16px;
-  --radius-btn: 9999px;
-  --radius-input: 8px;
-
-  /* Shadows */
-  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  /* UTD accent colors */
+  --utd-orange: #ec7524;
+  --utd-orange-dark: #d4681f;
+  --utd-orange-light: #fef4ea;
+  --utd-green: #114634;
+  --utd-green-light: #e6f0ec;
 }
 
 /* ─── Tailwind v4 theme mapping ─── */
 @theme inline {
-  --color-primary: var(--color-primary);
-  --color-primary-hover: var(--color-primary-hover);
-  --color-bg-page: var(--color-bg-page);
-  --color-bg-card: var(--color-bg-card);
-  --color-text-primary: var(--color-text-primary);
-  --color-text-secondary: var(--color-text-secondary);
-  --color-text-muted: var(--color-text-muted);
-  --color-border: var(--color-border);
-  --color-border-dashed: var(--color-border-dashed);
-  --color-badge-bg: var(--color-badge-bg);
-  --color-badge-text: var(--color-badge-text);
-  --color-badge-border: var(--color-badge-border);
-  --color-navbar-bg: var(--color-navbar-bg);
-  --color-navbar-border: var(--color-navbar-border);
-  --color-icon-bg: var(--color-icon-bg);
-  --color-icon-text: var(--color-icon-text);
-  --color-divider-text: var(--color-divider-text);
-  --font-sans: "Inter", system-ui, sans-serif;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-nebula: var(--nebula-indigo);
+  --color-nebula-dark: var(--nebula-indigo-dark);
+  --color-nebula-light: var(--nebula-indigo-light);
+  --color-flame: var(--utd-orange);
+  --color-flame-dark: var(--utd-orange-dark);
+  --color-flame-light: var(--utd-orange-light);
+  --color-utd-green: var(--utd-green);
+  --color-utd-green-light: var(--utd-green-light);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
 }
 
 body {
-  background: var(--color-bg-page);
-  color: var(--color-text-primary);
+  background: var(--background);
+  color: var(--foreground);
   font-family: var(--font-sans), system-ui, sans-serif;
-  margin: 0;
 }
 
-/* ─── Loading screen keyframe animations (can't be done with Tailwind) ─── */
+/* ─── Loading screen keyframe animations ─── */
 
 .loading-ellipsis::after {
   content: "";
@@ -119,5 +97,17 @@ body {
   100% {
     transform: translateX(-100%);
     width: 40%;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

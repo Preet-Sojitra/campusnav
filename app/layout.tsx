@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { ScheduleProvider } from "./context/ScheduleContext";
+import ClientProviders from "@/components/ClientProviders";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -10,9 +10,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "NebulaLearn – Upload Your Schedule",
+  title: "NebulaLearn – Campus Schedule",
   description:
-    "Get personalized study spot recommendations between classes. Upload your schedule or paste your course list.",
+    "View your daily class schedule, find study spots between classes, and navigate campus.",
 };
 
 export default function RootLayout({
@@ -22,8 +22,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} antialiased`}>
-        <ScheduleProvider>{children}</ScheduleProvider>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
+        <ClientProviders>
+          {children}
+        </ClientProviders>
       </body>
     </html>
   );

@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { getDirectionsDuration } from "@/lib/utd-map";
+import dbConnect from "@/lib/mongodb";
+import MapCache from "@/models/MapCache";
 
 export async function GET(request) {
   const encodedUrl = request.nextUrl.searchParams.get("url");
@@ -11,8 +13,20 @@ export async function GET(request) {
   }
 
   const directionsUrl = decodeURIComponent(encodedUrl);
+  // Hash the URL simply for the key to avoid crazy long _id keys in mongo
+  const cacheKey = `dur:${Buffer.from(encodedUrl).toString('base64').slice(0, 100)}`;
 
   try {
+    await dbConnect();
+
+    // 1. Check Cache
+    const cached = await MapCache.findOne({ cacheKey }).lean();
+    if (cached) {
+      console.log("⚡ Map Caching Hit for duration: ", cacheKey);
+      return NextResponse.json(cached.routeData, { status: 200 });
+    }
+
+    // 2. Fetch from External Provider
     const durationData = await getDirectionsDuration(directionsUrl);
     if (!durationData) {
       return NextResponse.json(
@@ -20,6 +34,13 @@ export async function GET(request) {
         { status: 404 },
       );
     }
+
+    // 3. Save to Cache in background (upsert to avoid duplicate key errors)
+    MapCache.findOneAndUpdate(
+      { cacheKey },
+      { cacheKey, routeData: durationData },
+      { upsert: true, new: true }
+    ).catch(err => console.error("Failed to save duration cache:", err));
 
     return NextResponse.json(durationData, { status: 200 });
   } catch (error) {

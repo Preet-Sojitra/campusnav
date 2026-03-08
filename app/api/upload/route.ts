@@ -39,7 +39,9 @@ export async function POST(request: NextRequest) {
                     parts: [
                         {
                             text: `
-Extract the class schedule from this image.
+Extract the class schedule from this image. This is a weekly calendar schedule showing classes across multiple days.
+
+IMPORTANT: Extract EVERY class block from EVERY day column (MON, TUE, WED, THU, FRI). The same course often appears on multiple days (e.g. a class on both MON and WED). You MUST create a separate entry for EACH day it appears.
 
 The text inside the colored blocks generally follows this pattern:
 [Course Code] [Building] [Room]
@@ -64,7 +66,8 @@ Rules:
 - "room" is the combination of the building letters and numbers that come right after the course code (e.g., "ECSW 1.365", "GR 2.302", "JO 3.516").
 - Use day values like MON, TUE, WED, THU, FRI.
 - Use 24-hour HH:MM format for "startTime" based on the left-hand time grid.
-- One object per class meeting block.
+- One object per class meeting block. If a class appears in 3 day columns, output 3 objects.
+- Do NOT skip any days. Check every column in the calendar.
 `,
                         },
                         {
@@ -81,7 +84,7 @@ Rules:
         const text = result.text;
         console.log("Gemini result:", text);
 
-        const schedule = JSON.parse(text);
+        const schedule = JSON.parse(text!);
         await Promise.all(
             schedule.classes.map(async (cls: any) => {
                 // split the course code into prefix and number (ignore section like "004")
