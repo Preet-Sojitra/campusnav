@@ -1,3 +1,5 @@
+"use client";
+
 /**
  * Navbar – Top navigation bar spanning the full viewport width.
  *
@@ -6,9 +8,22 @@
  * the right. A thin UTD-orange accent line runs along the bottom edge,
  * subtly bridging the two brand identities without overwhelming the
  * dark navbar surface.
+ *
+ * Displays the virtual clock time next to the user info.
  */
 
+import { Clock } from "lucide-react";
+import { useVirtualClock } from "@/lib/virtual-clock";
+
 export default function Navbar() {
+  const { now } = useVirtualClock();
+
+  const timeStr = now.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+
   return (
     <nav className="relative flex items-center justify-between bg-gradient-to-r from-[#1e1b5e] via-[#4338ca] to-[#6d3fa0] px-8 py-3.5 shadow-lg">
       {/* Thin UTD-orange bottom accent stripe */}
@@ -35,7 +50,13 @@ export default function Navbar() {
         <span className="text-lg font-bold text-white">NebulaLearn</span>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-4">
+        {/* Virtual clock display */}
+        <div className="flex items-center gap-1.5 rounded-lg bg-white/10 px-3 py-1.5 backdrop-blur-sm">
+          <Clock size={14} className="text-indigo-200" />
+          <span className="text-sm font-mono font-semibold text-white">{timeStr}</span>
+        </div>
+
         <div className="text-right leading-tight">
           <p className="text-sm font-semibold text-white">Temoc Student</p>
           <p className="text-xs text-indigo-200">Computer Science Senior</p>

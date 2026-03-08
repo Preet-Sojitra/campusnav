@@ -8,7 +8,7 @@
  * WalkingSegment – A walking-time connector rendered between two classes.
  */
 
-export type ClassStatus = "current" | "upcoming" | "late-afternoon";
+export type ClassStatus = "completed" | "current" | "upcoming" | "late-afternoon";
 
 export interface ScheduleClass {
   id: string;
@@ -34,4 +34,23 @@ export interface ScheduleGap {
 
 export interface WalkingSegment {
   duration: string;
+}
+
+export type SpaceStatus = "available" | "busy";
+
+export interface NearbySpace {
+  id: string;
+  name: string;
+  building: string;
+  status: SpaceStatus;
+  amenity: string;
+  walkTime: string;
+}
+
+export interface CampusTransit {
+  id: string;
+  routeName: string;
+  destination: string;
+  nextArrival: string;
+  shuttleLabel: string;
 }

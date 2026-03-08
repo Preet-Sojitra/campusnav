@@ -6,7 +6,7 @@
  * development and review.
  */
 
-import type { ScheduleClass, ScheduleGap, WalkingSegment } from "./types";
+import type { ScheduleClass, ScheduleGap, WalkingSegment, NearbySpace, CampusTransit } from "./types";
 
 export const scheduleClasses: ScheduleClass[] = [
   {
@@ -53,3 +53,40 @@ export const scheduleGap: ScheduleGap = {
     amenity: "Power outlets",
   },
 };
+
+export const nearbySpaces: NearbySpace[] = [
+  {
+    id: "ecss301",
+    name: "ECSS 3.01",
+    building: "Engineering & Computer Science South",
+    status: "available",
+    amenity: "Power available",
+    walkTime: "2 min walk",
+  },
+  {
+    id: "gr205",
+    name: "GR 2.05",
+    building: "Green Hall, 2nd Floor",
+    status: "busy",
+    amenity: "High-speed Wifi",
+    walkTime: "5 min walk",
+  },
+  {
+    id: "cb114",
+    name: "CB 1.14",
+    building: "Classroom Building",
+    status: "available",
+    amenity: "Cafe nearby",
+    walkTime: "8 min walk",
+  },
+];
+
+export const campusTransit: CampusTransit[] = [
+  {
+    id: "ncs",
+    routeName: "Route A - Science Wing",
+    destination: "Science Wing",
+    nextArrival: "11:15 AM",
+    shuttleLabel: "North Campus Shuttle: 4 mins away",
+  },
+];
