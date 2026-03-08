@@ -21,6 +21,7 @@ export interface RouteEntry {
     from: ClassEntry;
     to: ClassEntry;
     directionsUrl: string | null;
+    formattedDuration: string | null;
     loading: boolean;
     error: string | null;
 }
@@ -81,6 +82,7 @@ export function ScheduleProvider({ children }: { children: ReactNode }) {
             from,
             to,
             directionsUrl: null,
+            formattedDuration: null,
             loading: true,
             error: null,
         }));
@@ -97,10 +99,26 @@ export function ScheduleProvider({ children }: { children: ReactNode }) {
                     }
                     return res.json();
                 })
-                .then((data) => {
+                .then(async (data) => {
+                    let formattedDuration: string | null = null;
+                    if (data.url) {
+                        try {
+                            const durRes = await fetch(
+                                `/api/map/directions/duration?url=${encodeURIComponent(data.url)}`
+                            );
+                            if (durRes.ok) {
+                                const durData = await durRes.json();
+                                formattedDuration = durData.formattedDuration ?? null;
+                            }
+                        } catch {
+                            // duration is optional — swallow errors
+                        }
+                    }
                     setRoutes((prev) =>
                         prev.map((r, i) =>
-                            i === idx ? { ...r, directionsUrl: data.url, loading: false } : r
+                            i === idx
+                                ? { ...r, directionsUrl: data.url, formattedDuration, loading: false }
+                                : r
                         )
                     );
                 })

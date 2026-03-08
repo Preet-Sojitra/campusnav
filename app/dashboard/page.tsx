@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useSchedule } from "../context/ScheduleContext";
 import Link from "next/link";
 
@@ -284,7 +285,8 @@ export default function DashboardPage() {
 /* ───────────────────────────── Route Card ───────────────────────────── */
 
 function RouteCard({ route }: { route: import("../context/ScheduleContext").RouteEntry }) {
-    const { from, to, directionsUrl, loading, error } = route;
+    const { from, to, directionsUrl, formattedDuration, loading, error } = route;
+    const [showMap, setShowMap] = useState(false);
 
     return (
         <div
@@ -354,6 +356,23 @@ function RouteCard({ route }: { route: import("../context/ScheduleContext").Rout
                 </div>
             </div>
 
+            {/* Walking duration badge */}
+            {formattedDuration && (
+                <div
+                    className="mt-3 flex items-center justify-center gap-1.5 rounded-lg py-1.5 text-xs font-semibold"
+                    style={{
+                        backgroundColor: "var(--color-primary-light)",
+                        color: "var(--color-primary)",
+                    }}
+                >
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <circle cx="7" cy="7" r="6" stroke="currentColor" strokeWidth="1.5" />
+                        <path d="M7 4V7.5L9.5 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                    🚶 {formattedDuration} walk
+                </div>
+            )}
+
             {/* Action */}
             <div className="mt-4">
                 {loading ? (
@@ -394,32 +413,54 @@ function RouteCard({ route }: { route: import("../context/ScheduleContext").Rout
                         Could not resolve route — {error}
                     </p>
                 ) : directionsUrl ? (
-                    <a
-                        href={directionsUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex w-full items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-semibold text-white transition-colors"
-                        style={{ backgroundColor: "var(--color-primary)" }}
-                        onMouseOver={(e) =>
-                        ((e.currentTarget as HTMLElement).style.backgroundColor =
-                            "var(--color-primary-hover)")
-                        }
-                        onMouseOut={(e) =>
-                        ((e.currentTarget as HTMLElement).style.backgroundColor =
-                            "var(--color-primary)")
-                        }
-                    >
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                            <path
-                                d="M8 1C4.686 1 2 3.686 2 7C2 11.5 8 15 8 15C8 15 14 11.5 14 7C14 3.686 11.314 1 8 1Z"
-                                stroke="white"
-                                strokeWidth="1.5"
-                                strokeLinejoin="round"
-                            />
-                            <circle cx="8" cy="7" r="2" stroke="white" strokeWidth="1.5" />
-                        </svg>
-                        View Directions on Map
-                    </a>
+                    <>
+                        <button
+                            onClick={() => setShowMap((v) => !v)}
+                            className="flex w-full items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-semibold text-white transition-colors"
+                            style={{ backgroundColor: "var(--color-primary)" }}
+                            onMouseOver={(e) =>
+                            ((e.currentTarget as HTMLElement).style.backgroundColor =
+                                "var(--color-primary-hover)")
+                            }
+                            onMouseOut={(e) =>
+                            ((e.currentTarget as HTMLElement).style.backgroundColor =
+                                "var(--color-primary)")
+                            }
+                        >
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                <path
+                                    d="M8 1C4.686 1 2 3.686 2 7C2 11.5 8 15 8 15C8 15 14 11.5 14 7C14 3.686 11.314 1 8 1Z"
+                                    stroke="white"
+                                    strokeWidth="1.5"
+                                    strokeLinejoin="round"
+                                />
+                                <circle cx="8" cy="7" r="2" stroke="white" strokeWidth="1.5" />
+                            </svg>
+                            {showMap ? "Hide Map" : "Show Map"}
+                        </button>
+
+                        {showMap && (
+                            <div className="mt-3 overflow-hidden rounded-lg" style={{ border: "1px solid var(--color-border)" }}>
+                                <iframe
+                                    src={directionsUrl}
+                                    title="Campus Map Directions"
+                                    className="w-full border-0"
+                                    style={{ height: "400px" }}
+                                    allow="geolocation"
+                                />
+                            </div>
+                        )}
+
+                        <a
+                            href={directionsUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="mt-2 flex items-center justify-center gap-1 text-xs font-medium transition-opacity hover:opacity-80"
+                            style={{ color: "var(--color-primary)" }}
+                        >
+                            Open in new tab ↗
+                        </a>
+                    </>
                 ) : (
                     <p
                         className="rounded-lg px-4 py-2 text-center text-xs font-medium"
