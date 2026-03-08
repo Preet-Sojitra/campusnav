@@ -55,7 +55,7 @@ export default function Navbar() {
             />
           </svg>
         </div>
-        <span className="text-lg font-bold text-white">NebulaLearn</span>
+        <span className="text-lg font-bold text-white">CampusNav</span>
       </Link>
 
       <div className="flex items-center gap-4">
