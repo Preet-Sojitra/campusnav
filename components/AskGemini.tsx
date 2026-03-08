@@ -21,7 +21,7 @@ const SUGGESTIONS = [
 ];
 
 export default function AskGemini() {
-    const { classes, gaps, selectedDay, hasRealData } = useSchedule();
+    const { classes, gaps, selectedDay, hasRealData, syllabusText } = useSchedule();
     const { now } = useVirtualClock();
 
     const [isOpen, setIsOpen] = useState(false);
@@ -112,13 +112,24 @@ export default function AskGemini() {
         let currentText = "";
 
         try {
+            // Hardcoded Semester Start Date (e.g., Jan 20, 2026 for Spring)
+            const semesterStart = new Date("2026-01-20T00:00:00");
+            const msPerWeek = 1000 * 60 * 60 * 24 * 7;
+            const weeksSinceStart = Math.floor((now.getTime() - semesterStart.getTime()) / msPerWeek) + 1;
+            const currentWeekStr = weeksSinceStart > 0 ? `Week ${weeksSinceStart} of the semester` : "Before the semester starts";
+
             // Build real-time context to send to the AI
-            let contextStr = `Current Virtual Time: ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}\nSelected Day: ${selectedDay}\n`;
+            let contextStr = `Current Virtual Time: ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}\n`;
+            contextStr += `Current Week: ${currentWeekStr}\n`;
+            contextStr += `Selected Day: ${selectedDay}\n`;
             if (hasRealData) {
                 contextStr += `Today's Classes:\n${JSON.stringify(classes, null, 2)}\n`;
                 contextStr += `Today's Schedule Gaps / Free Time:\n${JSON.stringify(gaps, null, 2)}\n`;
             } else {
                 contextStr += `(No schedule data uploaded yet by the user. Let them know they should upload their schedule.)\n`;
+            }
+            if (syllabusText) {
+                contextStr += `\nUser Uploaded Syllabus / Course Material:\n${syllabusText}\n`;
             }
 
             const response = await fetch('/api/chat', {

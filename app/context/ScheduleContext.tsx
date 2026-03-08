@@ -60,6 +60,10 @@ interface ScheduleState {
     hasRealData: boolean;
     /** Trigger the upload flow */
     uploadFile: (file: File) => void;
+    /** Upload a syllabus file specifically */
+    uploadSyllabus: (file: File) => Promise<void>;
+    /** Parsed syllabus text from the backend */
+    syllabusText: string | null;
     /** Switch to a different day */
     setSelectedDay: (day: string) => void;
     /** Clear schedule data entirely */
@@ -182,6 +186,7 @@ const SUGGESTED_SPOTS = [
 ];
 
 const CACHE_KEY = "nebulalearn-schedule-cache";
+const SYLLABUS_CACHE_KEY = "nebulalearn-syllabus-cache";
 
 export function ScheduleProvider({ children, isDashboardActive = false }: { children: ReactNode; isDashboardActive?: boolean }) {
     const [rawClasses, setRawClasses] = useState<RawClassEntry[]>([]);
@@ -189,6 +194,7 @@ export function ScheduleProvider({ children, isDashboardActive = false }: { chil
     const [error, setError] = useState<string | null>(null);
     const [hasRealData, setHasRealData] = useState(false);
     const [selectedDay, setSelectedDay] = useState("MON");
+    const [syllabusText, setSyllabusText] = useState<string | null>(null);
 
     // Route cache: "fromRoom->toRoom" -> RouteResult
     const [routeCache, setRouteCache] = useState<Record<string, RouteResult>>({});
@@ -229,6 +235,16 @@ export function ScheduleProvider({ children, isDashboardActive = false }: { chil
             }
         } catch {
             // Ignore corrupted cache
+        }
+
+        try {
+            const cachedSyllabus = localStorage.getItem(SYLLABUS_CACHE_KEY);
+            if (cachedSyllabus) {
+                console.log("Loaded cached syllabus text");
+                setSyllabusText(cachedSyllabus);
+            }
+        } catch {
+            // Ignore
         }
     }, []);
 
@@ -405,8 +421,10 @@ export function ScheduleProvider({ children, isDashboardActive = false }: { chil
         setRawClasses([]);
         setHasRealData(false);
         setRouteCache({});
+        setSyllabusText(null);
         try {
             localStorage.removeItem(CACHE_KEY);
+            localStorage.removeItem(SYLLABUS_CACHE_KEY);
         } catch {
             // ignore
         }
@@ -471,6 +489,27 @@ export function ScheduleProvider({ children, isDashboardActive = false }: { chil
             });
     }, [status]);
 
+    /* ── Upload Syllabus handler ── */
+    const uploadSyllabus = useCallback(async (file: File) => {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const res = await fetch("/api/syllabus/parse", { method: "POST", body: formData });
+        if (!res.ok) throw new Error("Syllabus upload failed");
+
+        const data = await res.json();
+        if (data.success && data.text) {
+            setSyllabusText(data.text);
+            try {
+                localStorage.setItem(SYLLABUS_CACHE_KEY, data.text);
+            } catch {
+                // ignore
+            }
+        } else {
+            throw new Error(data.error || "Failed to extract text from syllabus");
+        }
+    }, []);
+
     return (
         <ScheduleContext.Provider
             value={{
@@ -484,6 +523,8 @@ export function ScheduleProvider({ children, isDashboardActive = false }: { chil
                 error,
                 hasRealData,
                 uploadFile,
+                uploadSyllabus,
+                syllabusText,
                 setSelectedDay,
                 clearSchedule,
             }}

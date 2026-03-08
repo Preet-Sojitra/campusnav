@@ -37,9 +37,14 @@ import {
   ArrowRight,
   ExternalLink,
   ChevronDown,
+  UploadCloud,
+  Sparkles,
+  Loader2,
 } from "lucide-react";
 import type { ScheduleClass, ScheduleGap, WalkingSegment, ClassStatus } from "@/lib/types";
 import { getClassStatus, parseScheduleTime } from "@/lib/virtual-clock";
+import { useSchedule } from "@/app/context/ScheduleContext";
+import toast from "react-hot-toast";
 
 /* ── Inline map iframe shown beneath Navigate buttons ── */
 function MapEmbed({ url, onClose }: { url: string; onClose: () => void }) {
@@ -318,10 +323,60 @@ function WalkingIndicator({ segment, isLeaveByActive = false }: { segment: Walki
   );
 }
 
-function GapCard({ gap }: { gap: ScheduleGap }) {
+function GapCard({ gap, virtualNow }: { gap: ScheduleGap, virtualNow: Date }) {
   const [showMap, setShowMap] = useState(false);
+  const [suggestionText, setSuggestionText] = useState<string | null>(null);
+  const [isGettingSuggestion, setIsGettingSuggestion] = useState(false);
+  const { syllabusText } = useSchedule();
 
   if (!gap.suggestedSpot.name) return null;
+
+  const handleGetSuggestion = async () => {
+    if (isGettingSuggestion) return;
+    setIsGettingSuggestion(true);
+    setSuggestionText(null);
+
+    try {
+      // 1. Get Suggestion from Gemini
+      const res = await fetch("/api/gap-suggestion", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          gapMinutes: gap.durationMinutes,
+          currentVirtualTime: virtualNow.toISOString(),
+          syllabusText,
+        }),
+      });
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Failed to get suggestion");
+      }
+
+      setSuggestionText(data.suggestion);
+
+      // 2. Play Audio using ElevenLabs
+      const ttsRes = await fetch("/api/tts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: data.suggestion, type: "recommendation" }),
+      });
+
+      if (ttsRes.ok) {
+        const audioBlob = await ttsRes.blob();
+        const audioUrl = URL.createObjectURL(audioBlob);
+        const audio = new Audio(audioUrl);
+        audio.play().catch(e => console.error("Audio playback failed:", e));
+      } else {
+        console.error("Failed to generate TTS audio");
+      }
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err.message || "Failed to get AI Suggestion");
+    } finally {
+      setIsGettingSuggestion(false);
+    }
+  };
 
   return (
     <div className="relative flex">
@@ -338,16 +393,43 @@ function GapCard({ gap }: { gap: ScheduleGap }) {
       <div className="my-3 flex-1 rounded-xl border border-indigo-200 bg-nebula-light/50 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
           {/* Left: gap info text — vertically centered */}
-          <div className="flex-1 shrink-0 space-y-1">
-            <div className="flex items-center gap-2">
-              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-nebula/10">
-                <Clock size={15} className="text-nebula" />
+          <div className="flex-1 shrink-0 space-y-3">
+            <div>
+              <div className="flex items-center gap-2">
+                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-nebula/10">
+                  <Clock size={15} className="text-nebula" />
+                </div>
+                <span className="text-[15px] font-bold text-indigo-900">
+                  {gap.duration} Gap Detected
+                </span>
               </div>
-              <span className="text-[15px] font-bold text-indigo-900">
-                {gap.duration} Gap Detected
-              </span>
+              <p className="pl-9 text-[13px] text-nebula mt-1">{gap.message}</p>
             </div>
-            <p className="pl-9 text-[13px] text-nebula">{gap.message}</p>
+
+            {/* AI Suggestion Area */}
+            <div className="pl-9 mt-2">
+              <button
+                onClick={handleGetSuggestion}
+                disabled={isGettingSuggestion}
+                className="flex items-center gap-2 rounded-lg bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-3 py-1.5 text-xs font-bold transition-colors shadow-sm disabled:opacity-70"
+              >
+                {isGettingSuggestion ? (
+                  <Loader2 size={14} className="animate-spin" />
+                ) : (
+                  <Sparkles size={14} />
+                )}
+                {isGettingSuggestion ? "Thinking..." : "AI Suggestion"}
+              </button>
+
+              {suggestionText && (
+                <div className="mt-3 rounded-lg bg-white/80 p-3 text-sm text-indigo-900 border border-indigo-100 animate-[fadeIn_0.3s_ease-out]">
+                  <p className="flex items-start gap-2">
+                    <Sparkles size={14} className="text-indigo-500 mt-0.5 shrink-0" />
+                    <span>{suggestionText}</span>
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Right: suggested spot + navigate */}
@@ -420,6 +502,27 @@ export default function ScheduleTimeline({
   onDayChange,
 }: ScheduleTimelineProps) {
   const [showDayPicker, setShowDayPicker] = useState(false);
+  const [isUploadingSyllabus, setIsUploadingSyllabus] = useState(false);
+  const { uploadSyllabus, syllabusText } = useSchedule();
+
+  const handleSyllabusUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploadingSyllabus(true);
+    const ts = toast.loading("Extracting syllabus text...");
+    try {
+      await uploadSyllabus(file);
+      toast.success("Syllabus uploaded to AI memory!", { id: ts });
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err.message || "Failed to upload syllabus", { id: ts });
+    } finally {
+      setIsUploadingSyllabus(false);
+      // Reset input so they can upload again if needed
+      e.target.value = "";
+    }
+  };
 
   // Format the virtual date for the heading
   const dateStr = virtualNow.toLocaleDateString("en-US", {
@@ -463,7 +566,7 @@ export default function ScheduleTimeline({
         const gapWithUrl = gap.directionsUrl
           ? gap
           : { ...gap, directionsUrl: segment?.directionsUrl ?? null };
-        timelineItems.push(<GapCard key={`gap-${i}`} gap={gapWithUrl} />);
+        timelineItems.push(<GapCard key={`gap-${i}`} gap={gapWithUrl} virtualNow={virtualNow} />);
       } else if (segment) {
         // Determine if leave-by time has passed for this class
         const cls = classes[i];
@@ -514,6 +617,28 @@ export default function ScheduleTimeline({
               <Calendar size={15} /> Calendar
             </button>
           )}
+
+          <label className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium shadow-sm transition-colors cursor-pointer ${syllabusText
+            ? "bg-green-50 border border-green-200 text-green-700 hover:bg-green-100"
+            : "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50"
+            }`}>
+            <input
+              type="file"
+              accept=".pdf,.doc,.docx,.txt"
+              className="hidden"
+              onChange={handleSyllabusUpload}
+              disabled={isUploadingSyllabus}
+            />
+            {isUploadingSyllabus ? (
+              <Loader2 size={15} className="animate-spin text-gray-500" />
+            ) : syllabusText ? (
+              <CheckCircle2 size={15} className="text-green-600" />
+            ) : (
+              <UploadCloud size={15} />
+            )}
+            {isUploadingSyllabus ? "Uploading..." : syllabusText ? "Syllabus Active" : "Upload Syllabus"}
+          </label>
+
           <a
             href="https://map.utdallas.edu/"
             target="_blank"
