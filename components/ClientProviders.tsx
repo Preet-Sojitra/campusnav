@@ -14,31 +14,34 @@ import { ScheduleProvider } from "@/app/context/ScheduleContext";
 import DemoClockControl from "@/components/DemoClockControl";
 import { usePathname } from "next/navigation";
 import AskGemini from "@/components/AskGemini";
+import { SessionProvider } from "next-auth/react";
 
 export default function ClientProviders({ children }: { children: ReactNode }) {
     const pathname = usePathname();
     const isDashboardActive = pathname === "/dashboard";
 
     return (
-        <ScheduleProvider isDashboardActive={isDashboardActive}>
-            <VirtualClockProvider>
-                {children}
-                <DemoClockControl />
-                <Toaster
-                    position="top-right"
-                    toastOptions={{
-                        duration: 8000,
-                        style: {
-                            borderRadius: "12px",
-                            padding: "14px 18px",
-                            fontSize: "14px",
-                            fontWeight: 600,
-                            boxShadow: "0 8px 30px rgba(0,0,0,0.12)",
-                        },
-                    }}
-                />
-                <AskGemini />
-            </VirtualClockProvider>
-        </ScheduleProvider>
+        <SessionProvider>
+            <ScheduleProvider isDashboardActive={isDashboardActive}>
+                <VirtualClockProvider>
+                    {children}
+                    <DemoClockControl />
+                    <Toaster
+                        position="top-right"
+                        toastOptions={{
+                            duration: 8000,
+                            style: {
+                                borderRadius: "12px",
+                                padding: "14px 18px",
+                                fontSize: "14px",
+                                fontWeight: 600,
+                                boxShadow: "0 8px 30px rgba(0,0,0,0.12)",
+                            },
+                        }}
+                    />
+                    <AskGemini />
+                </VirtualClockProvider>
+            </ScheduleProvider>
+        </SessionProvider>
     );
 }

@@ -36,6 +36,7 @@ import {
   AlertTriangle,
   ArrowRight,
   ExternalLink,
+  ChevronDown,
 } from "lucide-react";
 import type { ScheduleClass, ScheduleGap, WalkingSegment, ClassStatus } from "@/lib/types";
 import { getClassStatus, parseScheduleTime } from "@/lib/virtual-clock";
@@ -159,7 +160,7 @@ function NavigationAlert({
   );
 }
 
-function ClassCard({ cls, virtualNow }: { cls: ScheduleClass; virtualNow: Date }) {
+function ClassCard({ cls, virtualNow, isLastClass = false }: { cls: ScheduleClass; virtualNow: Date; isLastClass?: boolean }) {
   const status = getClassStatus(cls, virtualNow);
   const isCurrent = status === "current";
   const isCompleted = status === "completed";
@@ -167,6 +168,7 @@ function ClassCard({ cls, virtualNow }: { cls: ScheduleClass; virtualNow: Date }
   const minLeft = isCurrent ? minutesUntilEnd(cls, virtualNow) : null;
   // Show navigation alert when ≤ 10 min remain in current class
   const showNavAlert = isCurrent && minLeft !== null && minLeft <= 10;
+  const [showMap, setShowMap] = useState(false);
 
   return (
     <div className={`relative flex transition ${isCompleted ? "opacity-60" : ""}`}>
@@ -184,8 +186,11 @@ function ClassCard({ cls, virtualNow }: { cls: ScheduleClass; virtualNow: Date }
       </div>
 
       {/* Card */}
-      <div className={`mb-2 flex-1 rounded-xl border px-6 py-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-transform duration-150 ease-out transform hover:scale-101 hover:shadow-sm ${isCompleted ? "border-gray-200 bg-gray-50" : "border-gray-200 bg-white"
-        }`}>
+      <div
+        className={`mb-2 flex-1 rounded-xl border px-6 py-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-transform duration-150 ease-out transform hover:scale-101 hover:shadow-sm cursor-pointer ${isCompleted ? "border-gray-200 bg-gray-50" : "border-gray-200 bg-white"
+          }`}
+        onClick={() => setShowMap(!showMap)}
+      >
         <div className="flex items-start justify-between">
           <div>
             <span
@@ -210,10 +215,16 @@ function ClassCard({ cls, virtualNow }: { cls: ScheduleClass; virtualNow: Date }
               )}
             </div>
           </div>
-          <div className="shrink-0 text-right pt-1">
-            <span className="text-[13px] text-gray-400">
-              {cls.startTime} - {cls.endTime}
-            </span>
+          <div className="shrink-0 flex flex-col items-end pt-1">
+            <div className="flex items-center gap-3">
+              <span className="text-[13px] text-gray-400 font-medium">
+                {cls.startTime} - {cls.endTime}
+              </span>
+              <ChevronDown
+                size={16}
+                className={`text-gray-400 transition-transform duration-200 ${showMap ? "rotate-180 text-nebula" : ""}`}
+              />
+            </div>
             {/* Leave-by time badge (always visible if present, more prominent than walking segment) */}
             {cls.leaveByTime && !isCompleted && (
               <div className="mt-1.5 flex items-center gap-1 justify-end">
@@ -228,12 +239,32 @@ function ClassCard({ cls, virtualNow }: { cls: ScheduleClass; virtualNow: Date }
 
         {/* Navigation alert banner — shows when class is about to end */}
         {showNavAlert && (
-          <NavigationAlert
-            minutesLeft={minLeft!}
-            walkDurationSeconds={cls.walkDurationSeconds}
-            leaveByTime={cls.leaveByTime}
-            directionsUrl={cls.directionsUrl}
-          />
+          <div onClick={(e) => e.stopPropagation()}>
+            <NavigationAlert
+              minutesLeft={minLeft!}
+              walkDurationSeconds={cls.walkDurationSeconds}
+              leaveByTime={cls.leaveByTime}
+              directionsUrl={cls.directionsUrl}
+            />
+          </div>
+        )}
+
+        {/* User-toggled Map for any class */}
+        {showMap && !showNavAlert && (
+          <div onClick={(e) => e.stopPropagation()}>
+            {isLastClass ? (
+              <div className="mt-4 p-5 rounded-lg bg-green-50 border border-green-200 text-center animate-[fadeIn_0.3s_ease-out]">
+                <CheckCircle2 size={32} className="mx-auto text-green-500 mb-2" />
+                <h4 className="text-[15px] font-bold text-green-800 mb-1">Finished for the day! 🎉</h4>
+                <p className="text-[13px] font-medium text-green-600">Great job—no more classes. Time to relax!</p>
+              </div>
+            ) : (
+              <MapEmbed
+                url={cls.directionsUrl || `https://map.utdallas.edu/?id=1772#!m/${cls.location.split(' ')[0]}`}
+                onClose={() => setShowMap(false)}
+              />
+            )}
+          </div>
         )}
       </div>
     </div>
@@ -258,8 +289,8 @@ function WalkingIndicator({ segment, isLeaveByActive = false }: { segment: Walki
       <div className="flex-1 mt-4 mb-4">
         <div
           className={`flex items-center justify-between rounded-lg px-5 py-2.5 transition-all duration-300 ${isLeaveByActive
-              ? "border-2 border-orange-400 bg-orange-50 shadow-[0_0_12px_rgba(249,115,22,0.15)] animate-pulse"
-              : "bg-gray-200/80"
+            ? "border-2 border-orange-400 bg-orange-50 shadow-[0_0_12px_rgba(249,115,22,0.15)] animate-pulse"
+            : "bg-gray-200/80"
             }`}
         >
           <span
@@ -414,7 +445,7 @@ export default function ScheduleTimeline({
   for (let i = 0; i < classes.length; i++) {
     // Add the class card
     timelineItems.push(
-      <ClassCard key={`class-${classes[i].id}`} cls={classes[i]} virtualNow={virtualNow} />,
+      <ClassCard key={`class-${classes[i].id}`} cls={classes[i]} virtualNow={virtualNow} isLastClass={i === classes.length - 1} />,
     );
 
     // After each class (except the last), add walking segment or gap

@@ -12,11 +12,16 @@
  * Displays the virtual clock time next to the user info.
  */
 
-import { Clock } from "lucide-react";
+import { useState } from "react";
+import { Clock, LogOut } from "lucide-react";
 import { useVirtualClock } from "@/lib/virtual-clock";
+import { useSession, signOut } from "next-auth/react";
+import LoginModal from "./LoginModal";
 
 export default function Navbar() {
   const { now } = useVirtualClock();
+  const { data: session, status } = useSession();
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
 
   const timeStr = now.toLocaleTimeString("en-US", {
     hour: "numeric",
@@ -57,14 +62,37 @@ export default function Navbar() {
           <span className="text-sm font-mono font-semibold text-white">{timeStr}</span>
         </div>
 
-        <div className="text-right leading-tight">
-          <p className="text-sm font-semibold text-white">Temoc Student</p>
-          <p className="text-xs text-indigo-200">Computer Science Senior</p>
-        </div>
-        <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-white/20 ring-2 ring-white/30">
-          <span className="text-sm font-bold text-white">TS</span>
-        </div>
+        {/* User state */}
+        {status === "loading" ? (
+          <div className="h-10 w-24 animate-pulse rounded bg-white/10" />
+        ) : session ? (
+          <div className="flex items-center gap-4">
+            <div className="text-right leading-tight">
+              <p className="text-sm font-semibold text-white">{session.user?.email}</p>
+              <button 
+                onClick={() => signOut()}
+                className="text-xs text-indigo-200 hover:text-white transition-colors flex items-center justify-end gap-1 mt-0.5"
+              >
+                <LogOut size={10} /> Sign Out
+              </button>
+            </div>
+            <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-white/20 ring-2 ring-white/30 truncate px-1">
+              <span className="text-sm font-bold text-white">
+                {session.user?.email?.substring(0, 2).toUpperCase()}
+              </span>
+            </div>
+          </div>
+        ) : (
+          <button
+            onClick={() => setIsLoginOpen(true)}
+            className="rounded-lg bg-white/15 px-5 py-2 text-sm font-bold text-white transition-colors hover:bg-white/25 backdrop-blur-sm"
+          >
+            Log In / Sign Up
+          </button>
+        )}
       </div>
+
+      <LoginModal isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
     </nav>
   );
 }
