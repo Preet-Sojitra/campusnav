@@ -54,6 +54,7 @@ export interface NearbySpace {
   status: SpaceStatus;
   amenity: string;
   walkTime: string;
+  directionsUrl?: string | null;
 }
 
 export interface CampusTransit {

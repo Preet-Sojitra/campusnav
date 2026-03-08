@@ -41,7 +41,7 @@ import type { ScheduleClass, ScheduleGap, WalkingSegment, ClassStatus } from "@/
 import { getClassStatus, parseScheduleTime } from "@/lib/virtual-clock";
 
 /* ── Inline map iframe shown beneath Navigate buttons ── */
-function MapEmbed({ url, onClose }: { url: string; onClose: () => void }) {
+export function MapEmbed({ url, onClose }: { url: string; onClose: () => void }) {
   return (
     <div className="mt-3 animate-[fadeIn_0.3s_ease-out]">
       <div className="overflow-hidden rounded-lg border border-gray-200 shadow-sm">

@@ -42,7 +42,7 @@ function DashboardContent() {
     const { now } = useVirtualClock();
 
     const useDemo = isDemo || (!hasRealData && !isLoading && !error);
-    const { primaryEmptyRoom, sidebarEmptyRooms } = useDynamicRooms(
+    const { primaryEmptyRoom, sidebarEmptyRooms, fromRoom } = useDynamicRooms(
         useDemo ? demoClasses : classes,
         now,
         useDemo,
@@ -193,6 +193,7 @@ function DashboardContent() {
                             <NearbySpaces
                                 spaces={nearbySpaces}
                                 emptyRooms={useDemo ? [] : sidebarEmptyRooms}
+                                fromRoom={useDemo ? null : fromRoom}
                             />
                         ) : (
                             <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
