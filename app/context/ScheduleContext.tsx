@@ -15,6 +15,7 @@ import type {
     ScheduleGap,
     EmptyRoom,
 } from "@/lib/types";
+import { useSession } from "next-auth/react";
 
 /* ------------------------------------------------------------------ */
 /*  Raw API types (from Gemini parse)                                  */
@@ -61,6 +62,8 @@ interface ScheduleState {
     uploadFile: (file: File) => void;
     /** Switch to a different day */
     setSelectedDay: (day: string) => void;
+    /** Clear schedule data entirely */
+    clearSchedule: () => void;
 }
 
 const ScheduleContext = createContext<ScheduleState | null>(null);
@@ -189,6 +192,28 @@ export function ScheduleProvider({ children, isDashboardActive = false }: { chil
 
     // Route cache: "fromRoom->toRoom" -> RouteResult
     const [routeCache, setRouteCache] = useState<Record<string, RouteResult>>({});
+
+    const { status } = useSession();
+
+    /* ── Fetch schedule from server if authenticated ── */
+    useEffect(() => {
+        if (status === "authenticated") {
+            fetch("/api/schedule/get")
+                .then((res) => res.json())
+                .then((data) => {
+                    if (data.schedule && data.schedule.length > 0) {
+                        setRawClasses(data.schedule);
+                        setHasRealData(true);
+                        try {
+                            localStorage.setItem(CACHE_KEY, JSON.stringify(data.schedule));
+                        } catch {
+                            // ignore
+                        }
+                    }
+                })
+                .catch(console.error);
+        }
+    }, [status]);
 
     /* ── Load cached schedule on mount ── */
     useEffect(() => {
@@ -375,6 +400,18 @@ export function ScheduleProvider({ children, isDashboardActive = false }: { chil
         return result;
     }, [classesByDay]);
 
+    /* ── Clear handler ── */
+    const clearSchedule = useCallback(() => {
+        setRawClasses([]);
+        setHasRealData(false);
+        setRouteCache({});
+        try {
+            localStorage.removeItem(CACHE_KEY);
+        } catch {
+            // ignore
+        }
+    }, []);
+
     /* ── Upload handler ── */
     const uploadFile = useCallback((file: File) => {
         setIsLoading(true);
@@ -405,6 +442,20 @@ export function ScheduleProvider({ children, isDashboardActive = false }: { chil
                 setHasRealData(true);
                 setIsLoading(false);
 
+                // If user is authenticated, save it to the DB
+                if (status === "authenticated") {
+                    try {
+                        await fetch("/api/schedule/save", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ schedule: classes }),
+                        });
+                        console.log("Saved schedule to DB");
+                    } catch (dbErr) {
+                        console.error("Failed to save schedule to DB", dbErr);
+                    }
+                }
+
                 // Cache to localStorage so we don't need to re-upload
                 try {
                     localStorage.setItem(CACHE_KEY, JSON.stringify(classes));
@@ -418,7 +469,7 @@ export function ScheduleProvider({ children, isDashboardActive = false }: { chil
                 setError("Failed to parse schedule. Please try again.");
                 setIsLoading(false);
             });
-    }, []);
+    }, [status]);
 
     return (
         <ScheduleContext.Provider
@@ -434,6 +485,7 @@ export function ScheduleProvider({ children, isDashboardActive = false }: { chil
                 hasRealData,
                 uploadFile,
                 setSelectedDay,
+                clearSchedule,
             }}
         >
             {children}

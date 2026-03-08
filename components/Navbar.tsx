@@ -16,11 +16,13 @@ import { useState } from "react";
 import { Clock, LogOut } from "lucide-react";
 import { useVirtualClock } from "@/lib/virtual-clock";
 import { useSession, signOut } from "next-auth/react";
+import { useSchedule } from "@/app/context/ScheduleContext";
 import LoginModal from "./LoginModal";
 
 export default function Navbar() {
   const { now } = useVirtualClock();
   const { data: session, status } = useSession();
+  const { clearSchedule } = useSchedule();
   const [isLoginOpen, setIsLoginOpen] = useState(false);
 
   const timeStr = now.toLocaleTimeString("en-US", {
@@ -69,8 +71,11 @@ export default function Navbar() {
           <div className="flex items-center gap-4">
             <div className="text-right leading-tight">
               <p className="text-sm font-semibold text-white">{session.user?.email}</p>
-              <button 
-                onClick={() => signOut()}
+              <button
+                onClick={() => {
+                  clearSchedule();
+                  signOut({ callbackUrl: "/" });
+                }}
                 className="text-xs text-indigo-200 hover:text-white transition-colors flex items-center justify-end gap-1 mt-0.5"
               >
                 <LogOut size={10} /> Sign Out

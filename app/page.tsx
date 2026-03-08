@@ -2,34 +2,37 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { useSchedule } from "./context/ScheduleContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 export default function UploadPage() {
   const router = useRouter();
-  const { uploadFile } = useSchedule();
+  const { data: session, status } = useSession();
+  const { uploadFile, hasRealData } = useSchedule();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
-  const [hasCachedData, setHasCachedData] = useState(false);
 
   const ACCEPTED_TYPES = ["image/png", "image/jpeg", "application/pdf"];
   const MAX_SIZE = 10 * 1024 * 1024;
 
-  useEffect(() => {
-    try {
-      const cached = localStorage.getItem("nebulalearn-schedule-cache");
-      if (cached) {
-        const parsed = JSON.parse(cached);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setHasCachedData(true);
-        }
-      }
-    } catch {
-      // ignore
-    }
-  }, []);
+  // The hasRealData from useSchedule context already handles checking for cached data.
+  // This useEffect and the local hasCachedData state are no longer needed.
+  // useEffect(() => {
+  //   try {
+  //     const cached = localStorage.getItem("nebulalearn-schedule-cache");
+  //     if (cached) {
+  //       const parsed = JSON.parse(cached);
+  //       if (Array.isArray(parsed) && parsed.length > 0) {
+  //         setHasCachedData(true);
+  //       }
+  //     }
+  //   } catch {
+  //     // ignore
+  //   }
+  // }, []);
 
   function handleFile(file: File) {
     if (!ACCEPTED_TYPES.includes(file.type)) {
@@ -166,7 +169,7 @@ export default function UploadPage() {
             </div>
 
             {/* Continue with cached schedule */}
-            {hasCachedData && (
+            {(status === "authenticated" && hasRealData) && (
               <div className="mt-5">
                 <button
                   type="button"

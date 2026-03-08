@@ -24,10 +24,10 @@ export async function POST(req: NextRequest) {
 
         const audioStream = await textToSpeech.textToSpeech.convert(voiceId, {
             text: text,
-            model_id: "eleven_monolingual_v1",
-            voice_settings: {
+            modelId: "eleven_monolingual_v1",
+            voiceSettings: {
                 stability: 0.5,
-                similarity_boost: 0.75,
+                similarityBoost: 0.75,
             }
         });
 
@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
         const stream = new ReadableStream({
             async start(controller) {
                 try {
-                    for await (const chunk of audioStream) {
+                    for await (const chunk of audioStream as any) {
                         controller.enqueue(chunk);
                     }
                 } catch (error) {
