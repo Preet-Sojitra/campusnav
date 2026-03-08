@@ -17,16 +17,21 @@ export async function GET(request) {
   const cacheKey = `dir:${fromQuery.toLowerCase()}:${toQuery.toLowerCase()}`;
 
   try {
-    await dbConnect();
-    
-    // 1. Check Cache
-    const cached = await MapCache.findOne({ cacheKey }).lean();
+    // Optional: use cache only when MongoDB is available (don't fail directions when DB is down)
+    let cached = null;
+    try {
+      await dbConnect();
+      cached = await MapCache.findOne({ cacheKey }).lean();
+    } catch (_dbErr) {
+      // MongoDB unreachable (e.g. ECONNREFUSED); continue without cache
+    }
+
     if (cached) {
       console.log("⚡ Map Caching Hit for directions: ", cacheKey);
       return NextResponse.json(cached.routeData, { status: 200 });
     }
 
-    // 2. Fetch from External Provider
+    // 2. Fetch from External Provider (Concept3D – no DB required)
     const url = await getDirectionsUrl(fromQuery, toQuery);
     if (!url) {
       return NextResponse.json(
@@ -34,13 +39,15 @@ export async function GET(request) {
         { status: 404 },
       );
     }
-    
+
     const payload = { url };
 
-    // 3. Save to Cache in background
-    MapCache.create({ cacheKey, routeData: payload }).catch(err => 
-      console.error("Failed to save direction cache:", err)
-    );
+    // 3. Save to Cache in background (best-effort; ignore if DB still down)
+    try {
+      MapCache.create({ cacheKey, routeData: payload }).catch(err =>
+        console.error("Failed to save direction cache:", err)
+      );
+    } catch (_) {}
 
     return NextResponse.json(payload, { status: 200 });
   } catch (error) {

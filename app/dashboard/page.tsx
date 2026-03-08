@@ -42,7 +42,7 @@ function DashboardContent() {
     const { now } = useVirtualClock();
 
     const useDemo = isDemo || (!hasRealData && !isLoading && !error);
-    const { primaryEmptyRoom, sidebarEmptyRooms } = useDynamicRooms(
+    const { primaryEmptyRoom, sidebarEmptyRooms, emptyRoomsByGapIndex } = useDynamicRooms(
         useDemo ? demoClasses : classes,
         now,
         useDemo,
@@ -55,32 +55,33 @@ function DashboardContent() {
     const scheduleClasses = useDemo ? demoClasses : classes;
     const scheduleWalking = useDemo ? demoWalking : walkingSegments;
 
-    // Build gap card: use real empty room data if available
-    let scheduleGap = useDemo
-        ? demoGap
-        : gaps[0] || {
-            duration: "0m",
-            durationMinutes: 0,
-            message: "",
-            suggestedSpot: { name: "", badge: "", walkTime: "", amenity: "" },
-        };
-
-    // Override gap's suggested spot with the closest real empty room
-    if (!useDemo && primaryEmptyRoom && gaps[0] && gaps[0].durationMinutes > 0) {
-        const firstGap = gaps[0];
-        scheduleGap = {
-            duration: firstGap.duration,
-            durationMinutes: firstGap.durationMinutes,
-            message: "Maximize your time between classes",
-            directionsUrl: primaryEmptyRoom._directionsUrl || null,
-            suggestedSpot: {
-                name: primaryEmptyRoom.room,
-                badge: "CLOSEST EMPTY ROOM",
-                walkTime: primaryEmptyRoom._walkDurationStr || "Nearest available",
-                amenity: "Empty classroom",
-            },
-        };
-    }
+    // Build one gap card per gap; use real empty room data per gap when available
+    const scheduleGaps = useMemo(() => {
+        const displayedClasses = useDemo ? demoClasses : classes;
+        let gapCount = 0;
+        for (let i = 0; i < displayedClasses.length - 1; i++) {
+            const end = parseScheduleTime(displayedClasses[i].endTime, now);
+            const start = parseScheduleTime(displayedClasses[i + 1].startTime, now);
+            if ((start.getTime() - end.getTime()) / 60000 >= 45) gapCount++;
+        }
+        if (useDemo) return Array.from({ length: gapCount }, () => demoGap);
+        return gaps.slice(0, gapCount).map((g, i) => {
+            const empty = emptyRoomsByGapIndex[i]?.primary;
+            if (!empty || !g.durationMinutes) return g;
+            return {
+                duration: g.duration,
+                durationMinutes: g.durationMinutes,
+                message: "Maximize your time between classes",
+                directionsUrl: empty._directionsUrl ?? null,
+                suggestedSpot: {
+                    name: empty.room,
+                    badge: "CLOSEST EMPTY ROOM",
+                    walkTime: empty._walkDurationStr ?? "Nearest available",
+                    amenity: "Empty classroom",
+                },
+            };
+        });
+    }, [useDemo, gaps, emptyRoomsByGapIndex, classes, now]);
 
     // Determine if NearbySpaces should be visible:
     // Show when there's a gap AND we're within 15 min before gap starts or during the gap
@@ -180,7 +181,7 @@ function DashboardContent() {
                     <ScheduleTimeline
                         classes={scheduleClasses}
                         walkingSegments={scheduleWalking}
-                        gap={scheduleGap}
+                        gaps={scheduleGaps}
                         virtualNow={now}
                         availableDays={useDemo ? [] : availableDays}
                         selectedDay={useDemo ? "" : selectedDay}

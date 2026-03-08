@@ -389,7 +389,8 @@ const DAY_SHORT: string[] = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
 interface ScheduleTimelineProps {
   classes: ScheduleClass[];
   walkingSegments: WalkingSegment[];
-  gap: ScheduleGap;
+  /** One gap per long break (same order as timeline) */
+  gaps: ScheduleGap[];
   virtualNow: Date;
   /** Available day codes from uploaded schedule (empty = demo mode) */
   availableDays?: string[];
@@ -403,7 +404,7 @@ interface ScheduleTimelineProps {
 export default function ScheduleTimeline({
   classes,
   walkingSegments,
-  gap,
+  gaps,
   virtualNow,
   availableDays = [],
   selectedDay = "",
@@ -428,8 +429,9 @@ export default function ScheduleTimeline({
       ? `${DAY_LABELS[selectedDay]}'s Schedule`
       : "Today\u2019s Schedule";
 
-  // Build the timeline items dynamically
+  // Build the timeline items dynamically (gapIndex = which long-gap card we're on)
   const timelineItems: React.ReactNode[] = [];
+  let gapIndex = 0;
   for (let i = 0; i < classes.length; i++) {
     // Add the class card
     timelineItems.push(
@@ -446,8 +448,10 @@ export default function ScheduleTimeline({
         (nextStart.getTime() - currentEnd.getTime()) / 60000,
       );
 
-      if (gapMinutes >= 45 && gap.suggestedSpot.name) {
-        timelineItems.push(<GapCard key={`gap-${i}`} gap={gap} />);
+      const gapForCard = gaps[gapIndex];
+      if (gapMinutes >= 45 && gapForCard?.suggestedSpot?.name) {
+        timelineItems.push(<GapCard key={`gap-${i}`} gap={gapForCard} />);
+        gapIndex++;
       } else if (segment) {
         // Determine if leave-by time has passed for this class
         const cls = classes[i];
