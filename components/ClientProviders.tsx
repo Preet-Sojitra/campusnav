@@ -13,6 +13,7 @@ import { VirtualClockProvider } from "@/lib/virtual-clock";
 import { ScheduleProvider } from "@/app/context/ScheduleContext";
 import DemoClockControl from "@/components/DemoClockControl";
 import { usePathname } from "next/navigation";
+import AskGemini from "@/components/AskGemini";
 
 export default function ClientProviders({ children }: { children: ReactNode }) {
     const pathname = usePathname();
@@ -36,6 +37,7 @@ export default function ClientProviders({ children }: { children: ReactNode }) {
                         },
                     }}
                 />
+                <AskGemini />
             </VirtualClockProvider>
         </ScheduleProvider>
     );
