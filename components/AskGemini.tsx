@@ -38,6 +38,24 @@ export default function AskGemini() {
     const [isTyping, setIsTyping] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
+    // Initial load of chat history from MongoDB
+    useEffect(() => {
+        const loadHistory = async () => {
+            try {
+                const res = await fetch("/api/chat/history");
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data && data.length > 0) {
+                        setMessages(data);
+                    }
+                }
+            } catch (error) {
+                console.error("Failed to load history", error);
+            }
+        };
+        loadHistory();
+    }, []);
+
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages, isOpen]);
@@ -80,6 +98,13 @@ export default function AskGemini() {
         setMessages((prev) => [...prev, userMsg]);
         setInput("");
         setIsTyping(true);
+
+        // Async save user message to MongoDB
+        fetch("/api/chat/history", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ role: "user", content: text })
+        }).catch(err => console.error("Failed to save user history", err));
 
         const assistantMsgId = (Date.now() + 1).toString();
         setMessages((prev) => [...prev, { id: assistantMsgId, role: "assistant", content: "", isStreaming: true }]);
@@ -160,6 +185,13 @@ export default function AskGemini() {
                 // remove markdown symbols for TTS
                 const cleanText = currentText.replace(/[*_#`]/g, '');
                 playTTS(cleanText, ttsType);
+
+                // Async save assistant message to MongoDB
+                fetch("/api/chat/history", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ role: "assistant", content: currentText })
+                }).catch(err => console.error("Failed to save assistant history", err));
             }
 
             setIsTyping(false);

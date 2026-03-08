@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { getDirectionsUrl } from "@/lib/utd-map";
+import dbConnect from "@/lib/mongodb";
+import MapCache from "@/models/MapCache";
 
 export async function GET(request) {
   const fromQuery = request.nextUrl.searchParams.get("from")?.trim();
@@ -12,7 +14,19 @@ export async function GET(request) {
     );
   }
 
+  const cacheKey = `dir:${fromQuery.toLowerCase()}:${toQuery.toLowerCase()}`;
+
   try {
+    await dbConnect();
+    
+    // 1. Check Cache
+    const cached = await MapCache.findOne({ cacheKey }).lean();
+    if (cached) {
+      console.log("⚡ Map Caching Hit for directions: ", cacheKey);
+      return NextResponse.json(cached.routeData, { status: 200 });
+    }
+
+    // 2. Fetch from External Provider
     const url = await getDirectionsUrl(fromQuery, toQuery);
     if (!url) {
       return NextResponse.json(
@@ -20,7 +34,15 @@ export async function GET(request) {
         { status: 404 },
       );
     }
-    return NextResponse.json({ url }, { status: 200 });
+    
+    const payload = { url };
+
+    // 3. Save to Cache in background
+    MapCache.create({ cacheKey, routeData: payload }).catch(err => 
+      console.error("Failed to save direction cache:", err)
+    );
+
+    return NextResponse.json(payload, { status: 200 });
   } catch (error) {
     console.error("Failed to build directions URL:", error);
     return NextResponse.json(
