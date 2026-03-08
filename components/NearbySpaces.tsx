@@ -41,6 +41,7 @@ function emptyRoomToSpace(room: EmptyRoom, index: number): NearbySpace {
         status: "available",
         amenity: "Empty classroom",
         walkTime: room._walkDurationStr || "Nearby",
+        _directionsUrl: room._directionsUrl,
     };
 }
 
@@ -94,7 +95,12 @@ function SpaceItem({
                 <button
                     type="button"
                     className="flex w-full items-center justify-center gap-2 rounded-lg bg-nebula py-2 text-sm font-semibold text-white transition-colors hover:bg-nebula-dark"
-                    onClick={(e) => e.stopPropagation()}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        // Provide a fallback if directionsUrl is not available, open the general map
+                        const url = space._directionsUrl || "https://map.utdallas.edu/";
+                        window.open(url, "_blank");
+                    }}
                 >
                     <Navigation size={14} /> Navigate
                 </button>
