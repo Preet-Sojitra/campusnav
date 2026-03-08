@@ -45,6 +45,7 @@ export const walkingSegments: WalkingSegment[] = [
 
 export const scheduleGap: ScheduleGap = {
   duration: "1h 45m",
+  durationMinutes: 105,
   message: "Maximize your time between classes",
   suggestedSpot: {
     name: "McDermott Library, 3rd Floor",

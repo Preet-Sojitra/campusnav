@@ -19,10 +19,17 @@ export interface ScheduleClass {
   endTime: string;
   location: string;
   professor?: string;
+  /** Directions URL to the *next* class (populated by ScheduleContext) */
+  directionsUrl?: string | null;
+  /** Walking duration in seconds to the next class */
+  walkDurationSeconds?: number | null;
+  /** Formatted "leave by" time, e.g. "10:05 AM" */
+  leaveByTime?: string | null;
 }
 
 export interface ScheduleGap {
   duration: string;
+  durationMinutes: number;
   message: string;
   suggestedSpot: {
     name: string;
@@ -30,10 +37,12 @@ export interface ScheduleGap {
     walkTime: string;
     amenity: string;
   };
+  directionsUrl?: string | null;
 }
 
 export interface WalkingSegment {
   duration: string;
+  directionsUrl?: string | null;
 }
 
 export type SpaceStatus = "available" | "busy";
