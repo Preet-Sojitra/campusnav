@@ -13,6 +13,7 @@ import type {
     ScheduleClass,
     WalkingSegment,
     ScheduleGap,
+    EmptyRoom,
 } from "@/lib/types";
 
 /* ------------------------------------------------------------------ */
@@ -130,7 +131,7 @@ function pickDefaultDay(availableDays: string[]): string {
 }
 
 /** Resolve directions URL + duration for a room pair */
-async function resolveRoute(
+export async function resolveRoute(
     fromRoom: string,
     toRoom: string,
 ): Promise<RouteResult> {
@@ -177,7 +178,9 @@ const SUGGESTED_SPOTS = [
     { name: "Student Union, 2nd Floor", badge: "CAFÉ & STUDY", walkTime: "5 min", amenity: "Cafe nearby" },
 ];
 
-export function ScheduleProvider({ children }: { children: ReactNode }) {
+const CACHE_KEY = "nebulalearn-schedule-cache";
+
+export function ScheduleProvider({ children, isDashboardActive = false }: { children: ReactNode; isDashboardActive?: boolean }) {
     const [rawClasses, setRawClasses] = useState<RawClassEntry[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -186,6 +189,23 @@ export function ScheduleProvider({ children }: { children: ReactNode }) {
 
     // Route cache: "fromRoom->toRoom" -> RouteResult
     const [routeCache, setRouteCache] = useState<Record<string, RouteResult>>({});
+
+    /* ── Load cached schedule on mount ── */
+    useEffect(() => {
+        try {
+            const cached = localStorage.getItem(CACHE_KEY);
+            if (cached) {
+                const parsed = JSON.parse(cached) as RawClassEntry[];
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    console.log(`Loaded ${parsed.length} cached classes`);
+                    setRawClasses(parsed);
+                    setHasRealData(true);
+                }
+            }
+        } catch {
+            // Ignore corrupted cache
+        }
+    }, []);
 
     /* ── Group raw classes by day ── */
     const classesByDay = useMemo(() => {
@@ -222,6 +242,7 @@ export function ScheduleProvider({ children }: { children: ReactNode }) {
 
     // Build ScheduleClass[] for the selected day
     const [classes, setClasses] = useState<ScheduleClass[]>([]);
+    const [walkingSegments, setWalkingSegments] = useState<WalkingSegment[]>([]);
 
     useEffect(() => {
         const uiClasses: ScheduleClass[] = dayRawClasses.map((c, i) => ({
@@ -235,51 +256,87 @@ export function ScheduleProvider({ children }: { children: ReactNode }) {
         }));
         setClasses(uiClasses);
 
-        // Resolve routes for consecutive pairs
-        dayRawClasses.forEach((c, i) => {
-            if (i >= dayRawClasses.length - 1) return;
-            const next = dayRawClasses[i + 1];
-            const cacheKey = `${c.room}->${next.room}`;
-
-            // Check cache first
-            if (routeCache[cacheKey]) {
-                const route = routeCache[cacheKey];
-                applyRoute(i, c, next, route);
-                return;
+        // Build initial walking segments (no directionsUrl yet)
+        const initialSegs: WalkingSegment[] = [];
+        for (let i = 0; i < dayRawClasses.length - 1; i++) {
+            const currentEnd = toMinutes(estimateEndTime(dayRawClasses[i].startTime));
+            const nextStart = toMinutes(dayRawClasses[i + 1].startTime);
+            const gapMinutes = nextStart - currentEnd;
+            if (gapMinutes > 0) {
+                initialSegs.push({ duration: `${Math.min(gapMinutes, 15)} min walk to next class` });
+            } else {
+                initialSegs.push({ duration: "Back-to-back classes" });
             }
+        }
+        setWalkingSegments(initialSegs);
 
-            resolveRoute(c.room, next.room).then((route) => {
-                setRouteCache((prev) => ({ ...prev, [cacheKey]: route }));
-                applyRoute(i, c, next, route);
+        // Resolve routes for consecutive pairs (ONLY IF ON DASHBOARD)
+        if (isDashboardActive) {
+            dayRawClasses.forEach((c, i) => {
+                if (i >= dayRawClasses.length - 1) return;
+                const next = dayRawClasses[i + 1];
+                const cacheKey = `${c.room}->${next.room}`;
+
+                // Check cache first
+                if (routeCache[cacheKey]) {
+                    const route = routeCache[cacheKey];
+                    applyRoute(i, c, next, route);
+                    return;
+                }
+
+                resolveRoute(c.room, next.room).then((route) => {
+                    setRouteCache((prev) => ({ ...prev, [cacheKey]: route }));
+                    applyRoute(i, c, next, route);
+                });
             });
-        });
+        }
 
-        function applyRoute(i: number, c: RawClassEntry, next: RawClassEntry, route: RouteResult) {
+        function applyRoute(i: number, c: RawClassEntry, next: RawClassEntry, route: RouteResult, overrideWalkSeconds?: number) {
+            // Update class with directions + leave-by time
             setClasses((prev) =>
                 prev.map((cls, idx) => {
                     if (idx !== i) return cls;
                     let leaveByTime: string | null = null;
-                    if (route.durationSeconds) {
-                        const walkMin = Math.ceil(route.durationSeconds / 60);
+                    const walkSecondsToUse = overrideWalkSeconds ?? route.durationSeconds;
+
+                    if (walkSecondsToUse) {
+                        const walkMin = Math.ceil(walkSecondsToUse / 60);
                         const nextStartMin = toMinutes(next.startTime);
                         const leaveMin = nextStartMin - walkMin;
                         const endMin = toMinutes(estimateEndTime(c.startTime));
+
+                        // If we used an override (i.e. empty room), we don't necessarily need to leave 
+                        // before the next class starts. We just want to suggest leaving right after class
+                        // or provide a walk time. Right now we use the max of 'leave before next class' or 'end of this class'.
                         leaveByTime = to12Hour(fromMinutes(Math.max(leaveMin, endMin - 10)));
                     }
                     return {
                         ...cls,
                         directionsUrl: route.directionsUrl,
-                        walkDurationSeconds: route.durationSeconds,
+                        walkDurationSeconds: walkSecondsToUse,
                         leaveByTime,
                     };
                 }),
             );
-        }
-    }, [dayRawClasses, selectedDay]);
 
-    /* ── Compute walking segments and gaps for selected day ── */
-    const { walkingSegments, gaps } = useMemo(() => {
-        const segs: WalkingSegment[] = [];
+            // Update walking segment with real duration and directions URL
+            setWalkingSegments((prev) =>
+                prev.map((seg, idx) => {
+                    if (idx !== i) return seg;
+                    return {
+                        ...seg,
+                        duration: route.formattedDuration
+                            ? `${route.formattedDuration} walk to next class`
+                            : seg.duration,
+                        directionsUrl: route.directionsUrl,
+                    };
+                }),
+            );
+        }
+    }, [dayRawClasses, selectedDay, isDashboardActive]);
+
+    /* ── Compute gaps for selected day ── */
+    const gaps = useMemo(() => {
         const detectedGaps: ScheduleGap[] = [];
 
         for (let i = 0; i < dayRawClasses.length - 1; i++) {
@@ -295,15 +352,10 @@ export function ScheduleProvider({ children }: { children: ReactNode }) {
                     message: "Maximize your time between classes",
                     suggestedSpot: SUGGESTED_SPOTS[spotIndex],
                 });
-                segs.push({ duration: `${Math.min(gapMinutes, 15)} min walk to next class` });
-            } else if (gapMinutes > 0) {
-                segs.push({ duration: `${Math.min(gapMinutes, 15)} min walk to next class` });
-            } else {
-                segs.push({ duration: "Back-to-back classes" });
             }
         }
 
-        return { walkingSegments: segs, gaps: detectedGaps };
+        return detectedGaps;
     }, [dayRawClasses]);
 
     /* ── Build allClassesByDay for the calendar ── */
@@ -348,9 +400,18 @@ export function ScheduleProvider({ children }: { children: ReactNode }) {
                     parsed = JSON.parse(parsed);
                 }
 
-                setRawClasses(parsed.classes ?? []);
+                const classes = parsed.classes ?? [];
+                setRawClasses(classes);
                 setHasRealData(true);
                 setIsLoading(false);
+
+                // Cache to localStorage so we don't need to re-upload
+                try {
+                    localStorage.setItem(CACHE_KEY, JSON.stringify(classes));
+                    console.log(`Cached ${classes.length} classes to localStorage`);
+                } catch {
+                    // localStorage full or unavailable — ignore
+                }
             })
             .catch((err) => {
                 console.error("Schedule parse error:", err);

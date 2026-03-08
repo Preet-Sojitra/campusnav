@@ -242,20 +242,35 @@ function ClassCard({ cls, virtualNow }: { cls: ScheduleClass; virtualNow: Date }
   );
 }
 
-function WalkingIndicator({ segment }: { segment: WalkingSegment }) {
+function WalkingIndicator({ segment, isLeaveByActive = false }: { segment: WalkingSegment; isLeaveByActive?: boolean }) {
   const [showMap, setShowMap] = useState(false);
 
   return (
     <div className="relative flex">
       <div className="relative flex w-10 shrink-0 flex-col items-center">
         <div className="w-px flex-1 bg-gray-200" />
-        <Footprints size={13} className="my-0.5 text-gray-400" />
+        <Footprints
+          size={13}
+          className={`my-0.5 transition-colors duration-300 ${isLeaveByActive ? "text-orange-500" : "text-gray-400"
+            }`}
+        />
         <div className="w-px flex-1 bg-gray-200" />
       </div>
 
       <div className="flex-1 mt-4 mb-4">
-        <div className="flex items-center justify-between rounded-lg bg-gray-200/80 px-5 py-2.5">
-          <span className="text-[13px] text-gray-500">{segment.duration}</span>
+        <div
+          className={`flex items-center justify-between rounded-lg px-5 py-2.5 transition-all duration-300 ${isLeaveByActive
+              ? "border-2 border-orange-400 bg-orange-50 shadow-[0_0_12px_rgba(249,115,22,0.15)] animate-pulse"
+              : "bg-gray-200/80"
+            }`}
+        >
+          <span
+            className={`text-[13px] font-medium transition-colors duration-300 ${isLeaveByActive ? "text-orange-700" : "text-gray-500"
+              }`}
+          >
+            {isLeaveByActive && "🚶 "}
+            {segment.duration}
+          </span>
           {segment.directionsUrl && (
             <button
               type="button"
@@ -434,8 +449,16 @@ export default function ScheduleTimeline({
       if (gapMinutes >= 45 && gap.suggestedSpot.name) {
         timelineItems.push(<GapCard key={`gap-${i}`} gap={gap} />);
       } else if (segment) {
+        // Determine if leave-by time has passed for this class
+        const cls = classes[i];
+        let leaveByActive = false;
+        if (cls.leaveByTime) {
+          const leaveByDate = parseScheduleTime(cls.leaveByTime, virtualNow);
+          const nextStart = parseScheduleTime(classes[i + 1].startTime, virtualNow);
+          leaveByActive = virtualNow >= leaveByDate && virtualNow < nextStart;
+        }
         timelineItems.push(
-          <WalkingIndicator key={`walk-${i}`} segment={segment} />,
+          <WalkingIndicator key={`walk-${i}`} segment={segment} isLeaveByActive={leaveByActive} />,
         );
       }
     }
@@ -460,8 +483,8 @@ export default function ScheduleTimeline({
               type="button"
               onClick={() => setShowDayPicker((v) => !v)}
               className={`flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium shadow-sm transition-colors ${showDayPicker
-                  ? "border-nebula bg-nebula text-white"
-                  : "border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
+                ? "border-nebula bg-nebula text-white"
+                : "border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
                 }`}
             >
               <Calendar size={15} />
@@ -489,24 +512,23 @@ export default function ScheduleTimeline({
       {/* Day picker pills */}
       {showDayPicker && availableDays.length > 0 && (
         <div className="mb-6 flex flex-wrap gap-2 animate-[fadeIn_0.2s_ease-out]">
-          {DAY_SHORT.map((day) => {
+          {DAY_SHORT.filter((d) => d !== "SAT" && d !== "SUN").map((day) => {
             const isAvailable = availableDays.includes(day);
             const isSelected = day === selectedDay;
             return (
               <button
                 key={day}
                 type="button"
-                disabled={!isAvailable}
                 onClick={() => {
-                  if (isAvailable && onDayChange) {
+                  if (onDayChange) {
                     onDayChange(day);
                   }
                 }}
                 className={`rounded-lg px-4 py-2 text-sm font-bold transition-all ${isSelected
-                    ? "bg-nebula text-white shadow-sm scale-105"
-                    : isAvailable
-                      ? "bg-white border border-gray-200 text-gray-700 hover:bg-nebula-light hover:text-nebula hover:border-nebula/30"
-                      : "bg-gray-100 text-gray-300 cursor-not-allowed"
+                  ? "bg-nebula text-white shadow-sm scale-105"
+                  : isAvailable
+                    ? "bg-white border border-gray-200 text-gray-700 hover:bg-nebula-light hover:text-nebula hover:border-nebula/30"
+                    : "bg-white border border-dashed border-gray-200 text-gray-400 hover:border-gray-300 hover:text-gray-500"
                   }`}
               >
                 {day}
@@ -517,7 +539,15 @@ export default function ScheduleTimeline({
       )}
 
       {/* Dynamic timeline */}
-      <div>{timelineItems}</div>
+      <div>
+        {timelineItems.length > 0 ? (
+          timelineItems
+        ) : (
+          <div className="rounded-xl border border-dashed border-gray-200 bg-white p-8 text-center">
+            <p className="text-gray-400 font-medium">No classes on {selectedDay ? DAY_LABELS[selectedDay] : "this day"}</p>
+          </div>
+        )}
+      </div>
     </section>
   );
 }

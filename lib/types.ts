@@ -63,3 +63,12 @@ export interface CampusTransit {
   nextArrival: string;
   shuttleLabel: string;
 }
+
+/** Result from the closest-empty-room API */
+export interface EmptyRoom {
+  room: string;
+  building: string;
+  _walkDurationStr?: string;
+  _directionsUrl?: string | null;
+  _walkSeconds?: number | null;
+}

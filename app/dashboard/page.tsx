@@ -19,9 +19,11 @@ import {
     nearbySpaces,
     campusTransit,
 } from "@/lib/data";
-import { useVirtualClock } from "@/lib/virtual-clock";
+import { useVirtualClock, parseScheduleTime } from "@/lib/virtual-clock";
+import { useLeaveByToast } from "@/lib/useLeaveByToast";
+import { useDynamicRooms } from "@/lib/useDynamicRooms";
 import Link from "next/link";
-import { Suspense } from "react";
+import { Suspense, useMemo } from "react";
 
 function DashboardContent() {
     const searchParams = useSearchParams();
@@ -40,10 +42,21 @@ function DashboardContent() {
     const { now } = useVirtualClock();
 
     const useDemo = isDemo || (!hasRealData && !isLoading && !error);
+    const { primaryEmptyRoom, sidebarEmptyRooms } = useDynamicRooms(
+        useDemo ? demoClasses : classes,
+        now,
+        useDemo,
+        selectedDay
+    );
+
+    // Fire toast notifications when leave-by times are crossed
+    useLeaveByToast(useDemo ? demoClasses : classes, now);
 
     const scheduleClasses = useDemo ? demoClasses : classes;
     const scheduleWalking = useDemo ? demoWalking : walkingSegments;
-    const scheduleGap = useDemo
+
+    // Build gap card: use real empty room data if available
+    let scheduleGap = useDemo
         ? demoGap
         : gaps[0] || {
             duration: "0m",
@@ -51,6 +64,54 @@ function DashboardContent() {
             message: "",
             suggestedSpot: { name: "", badge: "", walkTime: "", amenity: "" },
         };
+
+    // Override gap's suggested spot with the closest real empty room
+    if (!useDemo && primaryEmptyRoom && gaps[0] && gaps[0].durationMinutes > 0) {
+        const firstGap = gaps[0];
+        scheduleGap = {
+            duration: firstGap.duration,
+            durationMinutes: firstGap.durationMinutes,
+            message: "Maximize your time between classes",
+            directionsUrl: primaryEmptyRoom._directionsUrl || null,
+            suggestedSpot: {
+                name: primaryEmptyRoom.room,
+                badge: "CLOSEST EMPTY ROOM",
+                walkTime: primaryEmptyRoom._walkDurationStr || "Nearest available",
+                amenity: "Empty classroom",
+            },
+        };
+    }
+
+    // Determine if NearbySpaces should be visible:
+    // Show when there's a gap AND we're within 15 min before gap starts or during the gap
+    const showNearbySpaces = useMemo(() => {
+        if (useDemo) return true; // Always show in demo mode
+
+        const activeClasses = useDemo ? demoClasses : classes;
+        if (gaps.length === 0 || activeClasses.length < 2) return false;
+
+        // Find the gap between classes
+        for (let i = 0; i < activeClasses.length - 1; i++) {
+            const currentEnd = parseScheduleTime(activeClasses[i].endTime, now);
+            const nextStart = parseScheduleTime(activeClasses[i + 1].startTime, now);
+            const gapMs = nextStart.getTime() - currentEnd.getTime();
+            const gapMinutes = gapMs / 60000;
+
+            if (gapMinutes >= 45) {
+                // Gap found — show sidebar from 15 min before gap starts until gap ends
+                const showFromMs = currentEnd.getTime() - 15 * 60000;
+                const showUntilMs = nextStart.getTime();
+                const nowMs = now.getTime();
+
+                if (nowMs >= showFromMs && nowMs <= showUntilMs) {
+                    return true;
+                }
+            }
+        }
+
+        // Also show if we have empty room data (API returned results)
+        return sidebarEmptyRooms.length > 0;
+    }, [useDemo, classes, gaps, now, sidebarEmptyRooms]);
 
     /* ─── Loading State ─── */
     if (isLoading) {
@@ -128,7 +189,28 @@ function DashboardContent() {
 
                     {/* Right: Sidebar */}
                     <aside className="flex flex-col gap-5 lg:sticky lg:top-6">
-                        <NearbySpaces spaces={nearbySpaces} />
+                        {showNearbySpaces ? (
+                            <NearbySpaces
+                                spaces={nearbySpaces}
+                                emptyRooms={useDemo ? [] : sidebarEmptyRooms}
+                            />
+                        ) : (
+                            <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+                                <div className="flex items-center gap-2 mb-3">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4338ca" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                                        <circle cx="12" cy="10" r="3" />
+                                    </svg>
+                                    <h3 className="text-[15px] font-extrabold text-gray-900">
+                                        Nearby Empty Classes
+                                    </h3>
+                                </div>
+                                <div className="rounded-lg border border-dashed border-gray-200 bg-gray-50/50 px-4 py-6 text-center">
+                                    <p className="text-sm text-gray-400 font-medium">No large gaps detected</p>
+                                    <p className="mt-1 text-xs text-gray-300">Room suggestions appear when you have 45+ min between classes</p>
+                                </div>
+                            </div>
+                        )}
                         <CampusTransit transit={campusTransit} />
                     </aside>
                 </div>

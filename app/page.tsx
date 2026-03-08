@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSchedule } from "./context/ScheduleContext";
 import Navbar from "@/components/Navbar";
@@ -12,9 +12,24 @@ export default function UploadPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
+  const [hasCachedData, setHasCachedData] = useState(false);
 
   const ACCEPTED_TYPES = ["image/png", "image/jpeg", "application/pdf"];
   const MAX_SIZE = 10 * 1024 * 1024;
+
+  useEffect(() => {
+    try {
+      const cached = localStorage.getItem("nebulalearn-schedule-cache");
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setHasCachedData(true);
+        }
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
 
   function handleFile(file: File) {
     if (!ACCEPTED_TYPES.includes(file.type)) {
@@ -81,8 +96,8 @@ export default function UploadPage() {
             {/* Drag & drop zone */}
             <div
               className={`flex flex-col items-center justify-center rounded-xl border-2 border-dashed py-10 transition-colors ${isDragOver
-                  ? "border-nebula bg-nebula-light/50"
-                  : "border-gray-300 bg-transparent"
+                ? "border-nebula bg-nebula-light/50"
+                : "border-gray-300 bg-transparent"
                 }`}
               onDragOver={(e) => {
                 e.preventDefault();
@@ -149,6 +164,22 @@ export default function UploadPage() {
                 {selectedFile ? "Change File" : "Select File"}
               </button>
             </div>
+
+            {/* Continue with cached schedule */}
+            {hasCachedData && (
+              <div className="mt-5">
+                <button
+                  type="button"
+                  onClick={() => router.push("/dashboard")}
+                  className="w-full rounded-lg bg-nebula px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-nebula-dark"
+                >
+                  Continue with saved schedule →
+                </button>
+                <p className="mt-2 text-xs text-gray-400">
+                  Your last uploaded schedule is saved. Upload a new one above to replace it.
+                </p>
+              </div>
+            )}
 
             {/* Demo schedule link */}
             <div className="mt-5 flex justify-center">

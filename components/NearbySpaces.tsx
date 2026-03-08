@@ -8,12 +8,12 @@
  *  - Red-500   → BUSY badge
  *  - Nebula    → "Navigate" button and header icon
  *
- * Clicking a space row reveals a "Navigate" button beneath it.
+ * If `emptyRooms` from the API are provided, they replace the static spaces.
  */
 
 import { useState } from "react";
-import { MapPin, Zap, Wifi, Coffee, Navigation } from "lucide-react";
-import type { NearbySpace } from "@/lib/types";
+import { MapPin, Zap, Wifi, Coffee, Navigation, DoorOpen } from "lucide-react";
+import type { NearbySpace, EmptyRoom } from "@/lib/types";
 
 const STATUS_STYLE: Record<string, string> = {
     available: "bg-utd-green-light text-utd-green",
@@ -29,7 +29,20 @@ const AMENITY_ICON: Record<string, React.ReactNode> = {
     "Power available": <Zap size={12} className="text-gray-400" />,
     "High-speed Wifi": <Wifi size={12} className="text-gray-400" />,
     "Cafe nearby": <Coffee size={12} className="text-gray-400" />,
+    "Empty classroom": <DoorOpen size={12} className="text-gray-400" />,
 };
+
+/** Convert an EmptyRoom from the API into our NearbySpace display format */
+function emptyRoomToSpace(room: EmptyRoom, index: number): NearbySpace {
+    return {
+        id: `empty-${index}-${room.room}`,
+        name: room.room,
+        building: room.building,
+        status: "available",
+        amenity: "Empty classroom",
+        walkTime: room._walkDurationStr || "Nearby",
+    };
+}
 
 function SpaceItem({
     space,
@@ -92,10 +105,18 @@ function SpaceItem({
 
 interface NearbySpacesProps {
     spaces: NearbySpace[];
+    /** Real empty rooms from the API — when present, replaces static demo data */
+    emptyRooms?: EmptyRoom[];
 }
 
-export default function NearbySpaces({ spaces }: NearbySpacesProps) {
+export default function NearbySpaces({ spaces, emptyRooms = [] }: NearbySpacesProps) {
     const [selectedId, setSelectedId] = useState<string | null>(null);
+
+    // Use real empty rooms if available, otherwise fall back to static data
+    const displaySpaces =
+        emptyRooms.length > 0
+            ? emptyRooms.map((r, i) => emptyRoomToSpace(r, i))
+            : spaces;
 
     return (
         <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
@@ -107,17 +128,16 @@ export default function NearbySpaces({ spaces }: NearbySpacesProps) {
                         Nearby Empty Classes
                     </h3>
                 </div>
-                <button
-                    type="button"
-                    className="text-[12px] font-semibold text-nebula hover:text-nebula-dark transition-colors"
-                >
-                    View All
-                </button>
+                {emptyRooms.length > 0 && (
+                    <span className="text-[10px] font-bold text-utd-green bg-utd-green-light rounded px-2 py-0.5">
+                        LIVE
+                    </span>
+                )}
             </div>
 
             {/* Space list */}
             <div>
-                {spaces.map((space) => (
+                {displaySpaces.map((space) => (
                     <SpaceItem
                         key={space.id}
                         space={space}
@@ -131,3 +151,4 @@ export default function NearbySpaces({ spaces }: NearbySpacesProps) {
         </div>
     );
 }
+
