@@ -35,10 +35,12 @@ export async function GET(request) {
       );
     }
 
-    // 3. Save to Cache in background
-    MapCache.create({ cacheKey, routeData: durationData }).catch(err => 
-        console.error("Failed to save duration cache:", err)
-    );
+    // 3. Save to Cache in background (upsert to avoid duplicate key errors)
+    MapCache.findOneAndUpdate(
+      { cacheKey },
+      { cacheKey, routeData: durationData },
+      { upsert: true, new: true }
+    ).catch(err => console.error("Failed to save duration cache:", err));
 
     return NextResponse.json(durationData, { status: 200 });
   } catch (error) {
