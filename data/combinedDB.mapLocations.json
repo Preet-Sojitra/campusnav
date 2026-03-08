@@ -1,0 +1,1305 @@
+[{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbe7e"
+  },
+  "name": "Berkner Hall (BE)",
+  "acronym": "BE",
+  "lat": 32.987717,
+  "lng": -96.750458
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbe7f"
+  },
+  "name": "Administration Building (AD)",
+  "acronym": "AD",
+  "lat": 32.989712,
+  "lng": -96.748367
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbe80"
+  },
+  "name": "Eugene McDermott Library (MC)",
+  "acronym": "MC",
+  "lat": 32.986958,
+  "lng": -96.74762
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbe81"
+  },
+  "name": "Activity Center (AB)",
+  "acronym": "AB",
+  "lat": 32.98521,
+  "lng": -96.749306
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbe82"
+  },
+  "name": "Bioengineering and Sciences Building (BSB) ",
+  "acronym": "BSB",
+  "lat": 32.991535,
+  "lng": -96.750046
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbe83"
+  },
+  "name": "Callier Center Richardson (CR)",
+  "acronym": "CR",
+  "lat": 32.992481,
+  "lng": -96.748535
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbe84"
+  },
+  "name": "Callier Center Richardson Addition (CRA)",
+  "acronym": "CRA",
+  "lat": 32.991722,
+  "lng": -96.748421
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbe85"
+  },
+  "name": "Davidson-Gundy Alumni Center (DGA)",
+  "acronym": "DGA",
+  "lat": 32.986183,
+  "lng": -96.746574
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbe86"
+  },
+  "name": "Capella Hall (RHC)",
+  "acronym": "RHC",
+  "lat": 32.99155,
+  "lng": -96.751419
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbe87"
+  },
+  "name": "Vega Hall (RHV)",
+  "acronym": "RHV",
+  "lat": 32.991116,
+  "lng": -96.754646
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbe88"
+  },
+  "name": "Andromeda Hall (RHA)",
+  "acronym": "RHA",
+  "lat": 32.99052,
+  "lng": -96.754654
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbe89"
+  },
+  "name": "Helix Hall (RHH)",
+  "acronym": "RHH",
+  "lat": 32.989975,
+  "lng": -96.753296
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbe8a"
+  },
+  "name": "Sirius Hall (RHS)",
+  "acronym": "RHS",
+  "lat": 32.989975,
+  "lng": -96.751366
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbe8b"
+  },
+  "name": "Canyon Creek Heights South (CH6)",
+  "acronym": "CH6",
+  "lat": 32.980637,
+  "lng": -96.755341
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbe8c"
+  },
+  "name": "Canyon Creek Heights North (CH7)",
+  "acronym": "CH7",
+  "lat": 32.981586,
+  "lng": -96.755264
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbe8d"
+  },
+  "name": "UV Phase 2 Building 14",
+  "acronym": null,
+  "lat": 32.983006,
+  "lng": -96.756065
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbe8e"
+  },
+  "name": "UV Phase 1 Building 2",
+  "acronym": null,
+  "lat": 32.985264,
+  "lng": -96.754463
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbe8f"
+  },
+  "name": "UV Phase 1 Building 3",
+  "acronym": null,
+  "lat": 32.985138,
+  "lng": -96.75544
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbe90"
+  },
+  "name": "UV Phase 1 Building 4",
+  "acronym": null,
+  "lat": 32.984886,
+  "lng": -96.754944
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbe91"
+  },
+  "name": "UV Phase 1 Building 5",
+  "acronym": null,
+  "lat": 32.984749,
+  "lng": -96.755585
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbe92"
+  },
+  "name": "UV Phase 1 Building 6",
+  "acronym": null,
+  "lat": 32.98447,
+  "lng": -96.754959
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbe93"
+  },
+  "name": "UV Phase 1 Building 7",
+  "acronym": null,
+  "lat": 32.984409,
+  "lng": -96.755821
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbe94"
+  },
+  "name": "UV Phase 1 Building 8",
+  "acronym": null,
+  "lat": 32.983952,
+  "lng": -96.756126
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbe95"
+  },
+  "name": "UV Phase 1 Building 9",
+  "acronym": null,
+  "lat": 32.984154,
+  "lng": -96.755096
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbe96"
+  },
+  "name": "UV Phase 1 Building 10",
+  "acronym": null,
+  "lat": 32.984028,
+  "lng": -96.754578
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbe97"
+  },
+  "name": "UV Phase 1 Building 11",
+  "acronym": null,
+  "lat": 32.98428,
+  "lng": -96.754532
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbe98"
+  },
+  "name": "UV Phase 1 Building 12",
+  "acronym": null,
+  "lat": 32.984844,
+  "lng": -96.754341
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbe99"
+  },
+  "name": "UV Phase 2 Building 15",
+  "acronym": null,
+  "lat": 32.983257,
+  "lng": -96.75605
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbe9a"
+  },
+  "name": "UV Phase 2 Building 16",
+  "acronym": null,
+  "lat": 32.982975,
+  "lng": -96.755554
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbe9b"
+  },
+  "name": "UV Phase 2 Building 17",
+  "acronym": null,
+  "lat": 32.983101,
+  "lng": -96.755135
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbe9c"
+  },
+  "name": "UV Phase 2 Building 18",
+  "acronym": null,
+  "lat": 32.983231,
+  "lng": -96.754837
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbe9d"
+  },
+  "name": "UV Phase 2 Building 19",
+  "acronym": null,
+  "lat": 32.982727,
+  "lng": -96.755058
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbe9e"
+  },
+  "name": "UV Phase 2 Building 20",
+  "acronym": null,
+  "lat": 32.982353,
+  "lng": -96.754852
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbe9f"
+  },
+  "name": "UV Phase 2 Building 21",
+  "acronym": null,
+  "lat": 32.982254,
+  "lng": -96.755386
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbea0"
+  },
+  "name": "UV Phase 2 Building 22",
+  "acronym": null,
+  "lat": 32.982204,
+  "lng": -96.755859
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbea1"
+  },
+  "name": "UV Phase 2 Building 23",
+  "acronym": null,
+  "lat": 32.982506,
+  "lng": -96.756134
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbea2"
+  },
+  "name": "UV Phase 3 Building 24 ",
+  "acronym": null,
+  "lat": 32.985256,
+  "lng": -96.753044
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbea3"
+  },
+  "name": "UV Phase 3 Building 25",
+  "acronym": null,
+  "lat": 32.985237,
+  "lng": -96.75235
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbea4"
+  },
+  "name": "UV Phase 3 Building 26",
+  "acronym": null,
+  "lat": 32.985176,
+  "lng": -96.751793
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbea5"
+  },
+  "name": "UV Phase 3 Building 27",
+  "acronym": null,
+  "lat": 32.98481,
+  "lng": -96.751884
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbea6"
+  },
+  "name": "UV Phase 3 Building 28",
+  "acronym": null,
+  "lat": 32.984447,
+  "lng": -96.751778
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbea7"
+  },
+  "name": "UV Phase 3 Building 29",
+  "acronym": null,
+  "lat": 32.984547,
+  "lng": -96.752342
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbea8"
+  },
+  "name": "UV Phase 3 Building 30",
+  "acronym": null,
+  "lat": 32.984612,
+  "lng": -96.75296
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbea9"
+  },
+  "name": "UV Phase 3 Building 31",
+  "acronym": null,
+  "lat": 32.984852,
+  "lng": -96.753242
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbeaa"
+  },
+  "name": "UV Phase 4 Building 33",
+  "acronym": null,
+  "lat": 32.986107,
+  "lng": -96.755707
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbeab"
+  },
+  "name": "UV Phase 4 Building 34",
+  "acronym": null,
+  "lat": 32.986431,
+  "lng": -96.755753
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbeac"
+  },
+  "name": "UV Phase 4 Building 35",
+  "acronym": null,
+  "lat": 32.986824,
+  "lng": -96.755692
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbead"
+  },
+  "name": "UV Phase 4 Building 36",
+  "acronym": null,
+  "lat": 32.986748,
+  "lng": -96.75515
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbeae"
+  },
+  "name": "UV Phase 5 Building 38",
+  "acronym": null,
+  "lat": 32.986217,
+  "lng": -96.754692
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbeaf"
+  },
+  "name": "UV Phase 5 Building 39",
+  "acronym": null,
+  "lat": 32.986107,
+  "lng": -96.754242
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbeb0"
+  },
+  "name": "UV Phase 5 Building 40",
+  "acronym": null,
+  "lat": 32.986439,
+  "lng": -96.754211
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbeb1"
+  },
+  "name": "UV Phase 5 Building 41",
+  "acronym": null,
+  "lat": 32.986813,
+  "lng": -96.754219
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbeb2"
+  },
+  "name": "UV Phase 6 Building 43",
+  "acronym": null,
+  "lat": 32.987358,
+  "lng": -96.754227
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbeb3"
+  },
+  "name": "UV Phase 6 Building 44",
+  "acronym": null,
+  "lat": 32.987499,
+  "lng": -96.754761
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbeb4"
+  },
+  "name": "UV Phase 6 Building 45",
+  "acronym": null,
+  "lat": 32.987968,
+  "lng": -96.754745
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbeb5"
+  },
+  "name": "UV Phase 6 Building 46",
+  "acronym": null,
+  "lat": 32.987892,
+  "lng": -96.754211
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbeb6"
+  },
+  "name": "UV Phase 7 Building 48",
+  "acronym": null,
+  "lat": 32.98745,
+  "lng": -96.755455
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbeb7"
+  },
+  "name": "UV Phase 7 Building 49",
+  "acronym": null,
+  "lat": 32.987984,
+  "lng": -96.75544
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbeb8"
+  },
+  "name": "UV Phase 7 Building 50",
+  "acronym": null,
+  "lat": 32.987976,
+  "lng": -96.75576
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbeb9"
+  },
+  "name": "UV Phase 7 Building 51",
+  "acronym": null,
+  "lat": 32.98748,
+  "lng": -96.755814
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbeba"
+  },
+  "name": "UV Phase 8 Building 53",
+  "acronym": null,
+  "lat": 32.988873,
+  "lng": -96.753914
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbebb"
+  },
+  "name": "UV Phase 8 Building 54",
+  "acronym": null,
+  "lat": 32.989323,
+  "lng": -96.753792
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbebc"
+  },
+  "name": "UV Phase 8 Building 55",
+  "acronym": null,
+  "lat": 32.98941,
+  "lng": -96.753296
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbebd"
+  },
+  "name": "UV Phase 8 Building 56",
+  "acronym": null,
+  "lat": 32.989456,
+  "lng": -96.752747
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbebe"
+  },
+  "name": "UV Phase 8 Building 57",
+  "acronym": null,
+  "lat": 32.989323,
+  "lng": -96.752312
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbebf"
+  },
+  "name": "UV Phase 8 Building 58",
+  "acronym": null,
+  "lat": 32.98888,
+  "lng": -96.752319
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbec0"
+  },
+  "name": "UV Phase 8 Building 59",
+  "acronym": null,
+  "lat": 32.988827,
+  "lng": -96.752907
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbec1"
+  },
+  "name": "UV Phase 8A Building 61",
+  "acronym": null,
+  "lat": 32.98901,
+  "lng": -96.755814
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbec2"
+  },
+  "name": "UV Phase 8A Building 62",
+  "acronym": null,
+  "lat": 32.989517,
+  "lng": -96.755806
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbec3"
+  },
+  "name": "UV Phase 8A Building 63",
+  "acronym": null,
+  "lat": 32.989609,
+  "lng": -96.755363
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbec4"
+  },
+  "name": "University Village Housing Office",
+  "acronym": null,
+  "lat": 32.989395,
+  "lng": -96.754898
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbec5"
+  },
+  "name": "UV Phase 4 Clubhouse",
+  "acronym": null,
+  "lat": 32.986366,
+  "lng": -96.755371
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbec6"
+  },
+  "name": "UV Phase 2 Clubhouse",
+  "acronym": null,
+  "lat": 32.982773,
+  "lng": -96.755867
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbec7"
+  },
+  "name": "UV Phase 3 Clubhouse",
+  "acronym": null,
+  "lat": 32.98444,
+  "lng": -96.753403
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbec8"
+  },
+  "name": "UV Phase 8 Clubhouse",
+  "acronym": null,
+  "lat": 32.988838,
+  "lng": -96.753548
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbec9"
+  },
+  "name": "UV Phase 9 Building 66",
+  "acronym": null,
+  "lat": 32.988701,
+  "lng": -96.751793
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbeca"
+  },
+  "name": "UV Phase 9 Building 67",
+  "acronym": null,
+  "lat": 32.98933,
+  "lng": -96.751762
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbecb"
+  },
+  "name": "Edith O'Donnell Arts & Technology Building (ATC)",
+  "acronym": "ATC",
+  "lat": 32.986137,
+  "lng": -96.747566
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbecc"
+  },
+  "name": "Engineering and Computer Science South (ECSS)",
+  "acronym": "ECSS",
+  "lat": 32.98624,
+  "lng": -96.75042
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbecd"
+  },
+  "name": "Engineering and Computer Science West (ECSW)",
+  "acronym": "ECSW",
+  "lat": 32.986191,
+  "lng": -96.751671
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbece"
+  },
+  "name": "Erik Jonsson Academic Center (JO)",
+  "acronym": "JO",
+  "lat": 32.988895,
+  "lng": -96.748863
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbecf"
+  },
+  "name": "Facilities Management (FM)",
+  "acronym": "FM",
+  "lat": 32.992294,
+  "lng": -96.746658
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbed0"
+  },
+  "name": "Founders Building (FO)",
+  "acronym": "FO",
+  "lat": 32.987701,
+  "lng": -96.749069
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbed1"
+  },
+  "name": "Founders North (FN)",
+  "acronym": "FN",
+  "lat": 32.988144,
+  "lng": -96.749359
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbed2"
+  },
+  "name": "Founders Annex (FA)",
+  "acronym": "FA",
+  "lat": 32.98769,
+  "lng": -96.749886
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbed3"
+  },
+  "name": "Karl Hoblitzelle Hall (HH)",
+  "acronym": "HH",
+  "lat": 32.986992,
+  "lng": -96.751633
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbed4"
+  },
+  "name": "Modular Lab 1 (ML1)",
+  "acronym": "ML1",
+  "lat": 32.98687,
+  "lng": -96.752625
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbed5"
+  },
+  "name": "Modular Lab 2 (ML2)",
+  "acronym": "ML2",
+  "lat": 32.98687,
+  "lng": -96.753288
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbed6"
+  },
+  "name": "Natural Science and Engineering Research Lab (RL)",
+  "acronym": "RL",
+  "lat": 32.992561,
+  "lng": -96.750443
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbed7"
+  },
+  "name": "Naveen Jindal School of Management (JSOM)",
+  "acronym": "JSOM",
+  "lat": 32.985046,
+  "lng": -96.746803
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbed8"
+  },
+  "name": "Engineering and Computer Science North (ECSN)",
+  "acronym": "ECSN",
+  "lat": 32.986992,
+  "lng": -96.750366
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbed9"
+  },
+  "name": "North Lab (NL)",
+  "acronym": "NL",
+  "lat": 32.990318,
+  "lng": -96.749214
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbeda"
+  },
+  "name": "North Office Building (NB)",
+  "acronym": "NB",
+  "lat": 32.990067,
+  "lng": -96.749397
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbedb"
+  },
+  "name": "Physics Annex (PHA)",
+  "acronym": "PHA",
+  "lat": 32.989506,
+  "lng": -96.749931
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbedc"
+  },
+  "name": "Physics Building (PHY)",
+  "acronym": "PHY",
+  "lat": 32.989441,
+  "lng": -96.750381
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbedd"
+  },
+  "name": "Research and Operations Center (ROC)",
+  "acronym": "ROC",
+  "lat": 32.98629,
+  "lng": -96.757126
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbede"
+  },
+  "name": "Research and Operations Center West (ROW)",
+  "acronym": "ROW",
+  "lat": 32.986259,
+  "lng": -96.758545
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbedf"
+  },
+  "name": "Environmental Health and Safety Building (SG)",
+  "acronym": "SG",
+  "lat": 32.990902,
+  "lng": -96.746864
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbee0"
+  },
+  "name": "Science Learning Center (SLC)",
+  "acronym": "SLC",
+  "lat": 32.988235,
+  "lng": -96.750397
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbee1"
+  },
+  "name": "Service Building (SB)",
+  "acronym": "SB",
+  "lat": 32.991299,
+  "lng": -96.746429
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbee2"
+  },
+  "name": "Student Services Building (SSB)",
+  "acronym": "SSB",
+  "lat": 32.985943,
+  "lng": -96.74884
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbee3"
+  },
+  "name": "Student Services Building Addition (SSA)",
+  "acronym": "SSA",
+  "lat": 32.986092,
+  "lng": -96.749435
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbee4"
+  },
+  "name": "Student Union (SU)",
+  "acronym": "SU",
+  "lat": 32.986942,
+  "lng": -96.74884
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbee5"
+  },
+  "name": "Synergy Park North (SPN)",
+  "acronym": "SPN",
+  "lat": 32.994007,
+  "lng": -96.752197
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbee6"
+  },
+  "name": "Synergy Park North 2 (SP2)",
+  "acronym": "SP2",
+  "lat": 32.995022,
+  "lng": -96.753319
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbee7"
+  },
+  "name": "Police (PD)",
+  "acronym": "PD",
+  "lat": 32.991692,
+  "lng": -96.74572
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbee8"
+  },
+  "name": "Waterview Science and Technology Center (WSTC)",
+  "acronym": "WSTC",
+  "lat": 32.991985,
+  "lng": -96.757393
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbee9"
+  },
+  "name": "Classroom Building (CB)",
+  "acronym": "CB",
+  "lat": 32.9897,
+  "lng": -96.749344
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbeea"
+  },
+  "name": "Maintenance Shop ",
+  "acronym": null,
+  "lat": 32.985172,
+  "lng": -96.754837
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbeeb"
+  },
+  "name": "Cecil H. Green Hall (GR)",
+  "acronym": "GR",
+  "lat": 32.988659,
+  "lng": -96.747871
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbeec"
+  },
+  "name": "University Theatre (TH)",
+  "acronym": "TH",
+  "lat": 32.988445,
+  "lng": -96.748718
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbeed"
+  },
+  "name": "Center for Vital Longevity",
+  "acronym": null,
+  "lat": 32.83445,
+  "lng": -96.86879
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbeee"
+  },
+  "name": "Center for BrainHealth",
+  "acronym": null,
+  "lat": 32.824764,
+  "lng": -96.847488
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbeef"
+  },
+  "name": "Brain Performance Institute",
+  "acronym": null,
+  "lat": 32.824085,
+  "lng": -96.848244
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbef0"
+  },
+  "name": "Callier Center Dallas",
+  "acronym": null,
+  "lat": 32.81348,
+  "lng": -96.845978
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbef1"
+  },
+  "name": "Crow Museum of Asian Art",
+  "acronym": null,
+  "lat": 32.78791,
+  "lng": -96.799675
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbef2"
+  },
+  "name": "UV Phase 9 Building 65",
+  "acronym": null,
+  "lat": 32.988197,
+  "lng": -96.7519
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbef3"
+  },
+  "name": "UV Phase 1A Laundry Center ",
+  "acronym": null,
+  "lat": 32.985104,
+  "lng": -96.754898
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbef4"
+  },
+  "name": "UV Phase 1B Laundry Center",
+  "acronym": null,
+  "lat": 32.983971,
+  "lng": -96.754875
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbef5"
+  },
+  "name": "University Housing Office",
+  "acronym": null,
+  "lat": 32.990547,
+  "lng": -96.754265
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbef6"
+  },
+  "name": "Housing Storage Warehouse",
+  "acronym": null,
+  "lat": 32.991302,
+  "lng": -96.753296
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbef7"
+  },
+  "name": "Construction Maintenance Building 1 (CM1)",
+  "acronym": "CM1",
+  "lat": 32.992615,
+  "lng": -96.746956
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbef8"
+  },
+  "name": "Facilities Management Custodial and Surplus (FMCS)",
+  "acronym": "FMCS",
+  "lat": 32.991722,
+  "lng": -96.747299
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbef9"
+  },
+  "name": "Facilities Management Shop Building (FMSB)",
+  "acronym": "FMSB",
+  "lat": 32.992222,
+  "lng": -96.746979
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbefa"
+  },
+  "name": "Facilities Management Events Building (FME)",
+  "acronym": "FME",
+  "lat": 32.992744,
+  "lng": -96.746628
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbefb"
+  },
+  "name": "Facilities Management Storage Building (FMF)",
+  "acronym": "FMF",
+  "lat": 32.992416,
+  "lng": -96.745827
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbefc"
+  },
+  "name": "Facilities Management Pole Barn (FMPB)",
+  "acronym": "FMPB",
+  "lat": 32.992287,
+  "lng": -96.746353
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbefd"
+  },
+  "name": "Facilities Management Greenhouses (FMGH)",
+  "acronym": "FMGH",
+  "lat": 32.992737,
+  "lng": -96.746231
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbefe"
+  },
+  "name": "Construction Maintenance Building 2 (CM2)",
+  "acronym": "CM2",
+  "lat": 32.992706,
+  "lng": -96.746956
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbeff"
+  },
+  "name": "Construction Maintenance Building 3 (CM3)",
+  "acronym": "CM3",
+  "lat": 32.992802,
+  "lng": -96.746948
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbf00"
+  },
+  "name": "Sciences Building (SCI)",
+  "acronym": "SCI",
+  "lat": 32.988945,
+  "lng": -96.75032
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbf01"
+  },
+  "name": "Phase 1 pool",
+  "acronym": null,
+  "lat": 32.985077,
+  "lng": -96.754669
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbf02"
+  },
+  "name": "Phase 2 pool",
+  "acronym": null,
+  "lat": 32.98267,
+  "lng": -96.755608
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbf03"
+  },
+  "name": "Phase 3 pool",
+  "acronym": null,
+  "lat": 32.984871,
+  "lng": -96.752457
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbf04"
+  },
+  "name": "Phase 4 pool",
+  "acronym": null,
+  "lat": 32.986423,
+  "lng": -96.755486
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbf05"
+  },
+  "name": "Phase 8 pool",
+  "acronym": null,
+  "lat": 32.988979,
+  "lng": -96.753372
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbf06"
+  },
+  "name": "Richardson Innovation Quarter Headquarters ",
+  "acronym": null,
+  "lat": 32.967449,
+  "lng": -96.702652
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbf07"
+  },
+  "name": "Housing Storage Warehouse",
+  "acronym": null,
+  "lat": 32.991302,
+  "lng": -96.753296
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbf08"
+  },
+  "name": "Sammons BrainHealth Imaging Center",
+  "acronym": null,
+  "lat": 32.824154,
+  "lng": -96.848671
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbf09"
+  },
+  "name": "Edith and Peter O'Donnell Jr. Athenaeum (APC)",
+  "acronym": "APC",
+  "lat": 32.98386,
+  "lng": -96.747261
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbf0a"
+  },
+  "name": "Texas Instruments Biomedical Engineering and Sciences Building (TI-BMES)",
+  "acronym": "TI-BMES",
+  "lat": 32.818932,
+  "lng": -96.837891
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbf0b"
+  },
+  "name": "UTD Visitor Center",
+  "acronym": null,
+  "lat": 32.99054,
+  "lng": -96.750839
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbf0c"
+  },
+  "name": "Waterview Academic and Administrative Center (WAAC)",
+  "acronym": "WAAC",
+  "lat": 32.990391,
+  "lng": -96.758049
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbf0d"
+  },
+  "name": "Activity Center Bookstore (ACB)",
+  "acronym": "ACB",
+  "lat": 32.984619,
+  "lng": -96.749641
+},
+{
+  "_id": {
+    "$oid": "69a3d6a81055aab768fbbf0e"
+  },
+  "name": "Comets LANding",
+  "acronym": null,
+  "lat": 32.987286,
+  "lng": -96.749084
+}]
