@@ -55,7 +55,7 @@ export function MapEmbed({ url, onClose }: { url: string; onClose: () => void })
           src={url}
           title="Campus Map Directions"
           className="w-full border-0"
-          style={{ height: "350px" }}
+          style={{ height: "450px" }}
           allow="geolocation"
         />
       </div>
@@ -393,7 +393,7 @@ function GapCard({ gap, virtualNow }: { gap: ScheduleGap, virtualNow: Date }) {
 
       {/* Gap card */}
       <div className="my-8 flex-1 flex justify-center">
-        <div className="w-3/4 rounded-xl border border-indigo-200 bg-nebula-light/50 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+        <div className="w-full rounded-xl border border-indigo-200 bg-nebula-light/50 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
           <div className="flex flex-col md:flex-row items-center md:items-start gap-4">
             {/* Gap info text */}
             <div className="space-y-3 md:flex-1">
@@ -407,31 +407,6 @@ function GapCard({ gap, virtualNow }: { gap: ScheduleGap, virtualNow: Date }) {
                   </span>
                 </div>
                 <p className="pl-9 text-[13px] text-nebula mt-1">{gap.message}</p>
-              </div>
-
-              {/* AI Suggestion Area */}
-              <div className="pl-9 mt-2">
-                <button
-                  onClick={handleGetSuggestion}
-                  disabled={isGettingSuggestion}
-                  className="flex items-center gap-2 rounded-lg bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-3 py-1.5 text-xs font-bold transition-colors shadow-sm disabled:opacity-70"
-                >
-                  {isGettingSuggestion ? (
-                    <Loader2 size={14} className="animate-spin" />
-                  ) : (
-                    <Sparkles size={14} />
-                  )}
-                  {isGettingSuggestion ? "Thinking..." : "AI Suggestion"}
-                </button>
-
-                {suggestionText && (
-                  <div className="mt-3 rounded-lg bg-white/80 p-3 text-sm text-indigo-900 border border-indigo-100 animate-[fadeIn_0.3s_ease-out]">
-                    <p className="flex items-start gap-2">
-                      <Sparkles size={14} className="text-indigo-500 mt-0.5 shrink-0" />
-                      <span>{suggestionText}</span>
-                    </p>
-                  </div>
-                )}
               </div>
             </div>
             {/* Suggested spot + navigate */}
@@ -456,15 +431,38 @@ function GapCard({ gap, virtualNow }: { gap: ScheduleGap, virtualNow: Date }) {
                   </button>
                 )}
               </div>
-
-              {/* Inline map iframe (appears below the spot card, spans the spot column) */}
-              {showMap && gap.directionsUrl && (
-                <div>
-                  <MapEmbed url={gap.directionsUrl} onClose={() => setShowMap(false)} />
-                </div>
-              )}
             </div>
           </div>
+          {/* AI Suggestion Area (Full Width) */}
+          <div className="border-t border-indigo-100/50">
+            <button
+              onClick={handleGetSuggestion}
+              disabled={isGettingSuggestion}
+              className="flex items-center gap-2 rounded-lg bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-4 py-2 text-sm font-bold transition-colors shadow-sm disabled:opacity-70"
+            >
+              {isGettingSuggestion ? (
+                <Loader2 size={16} className="animate-spin" />
+              ) : (
+                <Sparkles size={16} />
+              )}
+              {isGettingSuggestion ? "Thinking..." : "AI Suggestion"}
+            </button>
+
+            {suggestionText && (
+              <div className="mt-3 rounded-xl bg-white/90 p-4 text-[15px] leading-relaxed text-indigo-900 border border-indigo-100 shadow-sm animate-[fadeIn_0.3s_ease-out]">
+                <p className="flex items-start gap-3">
+                  <Sparkles size={18} className="text-indigo-500 mt-0.5 shrink-0" />
+                  <span>{suggestionText}</span>
+                </p>
+              </div>
+            )}
+          </div>
+          {/* Inline map iframe (appears full width below the card content) */}
+          {showMap && gap.directionsUrl && (
+            <div className="mt-4">
+              <MapEmbed url={gap.directionsUrl} onClose={() => setShowMap(false)} />
+            </div>
+          )}
         </div>
       </div>
     </div>
