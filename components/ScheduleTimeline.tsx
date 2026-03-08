@@ -45,7 +45,7 @@ function ClassCard({ cls }: { cls: ScheduleClass }) {
   const isCurrent = cls.status === "current";
 
   return (
-    <div className="relative flex">
+    <div className="relative flex transition">
       {/* Timeline rail: dot + vertical line */}
       <div className="relative flex w-10 shrink-0 flex-col items-center">
         <div
@@ -59,7 +59,7 @@ function ClassCard({ cls }: { cls: ScheduleClass }) {
       </div>
 
       {/* Card */}
-      <div className="mb-2 flex-1 rounded-xl border border-gray-200 bg-white px-6 py-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+      <div className="mb-2 flex-1 rounded-xl border border-gray-200 bg-white px-6 py-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-transform duration-150 ease-out transform hover:scale-101 hover:shadow-sm">
         <div className="flex items-start justify-between">
           <div>
             <span
@@ -101,7 +101,7 @@ function WalkingIndicator({ segment }: { segment: WalkingSegment }) {
         <div className="w-px flex-1 bg-gray-200" />
       </div>
 
-      <div className="my-1 flex flex-1 items-center rounded-lg bg-gray-100/80 px-5 py-2.5">
+      <div className="flex flex-1 items-center rounded-lg bg-gray-200/80 px-5 py-2.5 mt-4 mb-4">
         <span className="text-[13px] text-gray-500">{segment.duration}</span>
       </div>
     </div>
@@ -184,6 +184,7 @@ interface ScheduleTimelineProps {
   gap: ScheduleGap;
 }
 
+{/* Loop through class schedule for the day to generate the appropriate number of gap cards, class cards*/}
 export default function ScheduleTimeline({
   classes,
   walkingSegments,

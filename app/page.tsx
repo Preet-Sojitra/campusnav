@@ -27,7 +27,7 @@ export default function Home() {
       <Navbar />
 
       <main className="flex-1 px-6 py-10">
-        <div className="mx-auto max-w-3xl">
+        <div className="mx-auto max-w-5xl">
           <ScheduleTimeline
             classes={scheduleClasses}
             walkingSegments={walkingSegments}
