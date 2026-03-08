@@ -14,6 +14,7 @@
 
 import { Clock } from "lucide-react";
 import { useVirtualClock } from "@/lib/virtual-clock";
+import Link from "next/link";
 
 export default function Navbar() {
   const { now } = useVirtualClock();
@@ -29,7 +30,7 @@ export default function Navbar() {
       {/* Thin UTD-orange bottom accent stripe */}
       <div className="absolute inset-x-0 bottom-0 h-[3px] bg-gradient-to-r from-flame/0 via-flame to-flame/0" />
 
-      <div className="flex items-center gap-2.5">
+      <Link href="/" className="flex items-center gap-2.5">
         <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/15 backdrop-blur-sm">
           <svg
             width="20"
@@ -48,7 +49,7 @@ export default function Navbar() {
           </svg>
         </div>
         <span className="text-lg font-bold text-white">NebulaLearn</span>
-      </div>
+      </Link>
 
       <div className="flex items-center gap-4">
         {/* Virtual clock display */}

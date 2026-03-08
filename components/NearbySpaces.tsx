@@ -121,10 +121,10 @@ function SpaceItem({
             {/* Amenity + walk time */}
             <div className="mt-1.5 flex items-center justify-between text-[11.5px] text-gray-400">
                 <span className="flex items-center gap-1">
+                    {space.walkTime} ·
                     {AMENITY_ICON[space.amenity] ?? <Zap size={12} className="text-gray-400" />}
                     {space.amenity}
                 </span>
-                <span>{space.walkTime}</span>
             </div>
 
             {/* Navigate button — slides in when selected */}
