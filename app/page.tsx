@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
@@ -108,7 +108,8 @@ export default function Home() {
       {/* ─── Main Content ─── */}
       <main className="mx-auto max-w-xl px-4 py-10 text-center">
         {/* Calendar icon */}
-        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl"
+        <div
+          className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl"
           style={{ backgroundColor: "var(--color-icon-bg)" }}
         >
           <svg
@@ -127,14 +128,63 @@ export default function Home() {
               stroke="var(--color-icon-text)"
               strokeWidth="2"
             />
-            <path d="M3 11H25" stroke="var(--color-icon-text)" strokeWidth="2" />
-            <path d="M9 3V7" stroke="var(--color-icon-text)" strokeWidth="2" strokeLinecap="round" />
-            <path d="M19 3V7" stroke="var(--color-icon-text)" strokeWidth="2" strokeLinecap="round" />
-            <rect x="7" y="14" width="4" height="3" rx="0.5" fill="var(--color-icon-text)" />
-            <rect x="12" y="14" width="4" height="3" rx="0.5" fill="var(--color-icon-text)" />
-            <rect x="17" y="14" width="4" height="3" rx="0.5" fill="var(--color-icon-text)" />
-            <rect x="7" y="19" width="4" height="3" rx="0.5" fill="var(--color-icon-text)" />
-            <rect x="12" y="19" width="4" height="3" rx="0.5" fill="var(--color-icon-text)" />
+            <path
+              d="M3 11H25"
+              stroke="var(--color-icon-text)"
+              strokeWidth="2"
+            />
+            <path
+              d="M9 3V7"
+              stroke="var(--color-icon-text)"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+            <path
+              d="M19 3V7"
+              stroke="var(--color-icon-text)"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+            <rect
+              x="7"
+              y="14"
+              width="4"
+              height="3"
+              rx="0.5"
+              fill="var(--color-icon-text)"
+            />
+            <rect
+              x="12"
+              y="14"
+              width="4"
+              height="3"
+              rx="0.5"
+              fill="var(--color-icon-text)"
+            />
+            <rect
+              x="17"
+              y="14"
+              width="4"
+              height="3"
+              rx="0.5"
+              fill="var(--color-icon-text)"
+            />
+            <rect
+              x="7"
+              y="19"
+              width="4"
+              height="3"
+              rx="0.5"
+              fill="var(--color-icon-text)"
+            />
+            <rect
+              x="12"
+              y="19"
+              width="4"
+              height="3"
+              rx="0.5"
+              fill="var(--color-icon-text)"
+            />
           </svg>
         </div>
 
@@ -260,12 +310,12 @@ export default function Home() {
               }}
               onClick={() => fileInputRef.current?.click()}
               onMouseOver={(e) =>
-              ((e.target as HTMLElement).style.backgroundColor =
-                "var(--color-primary-hover)")
+                ((e.target as HTMLElement).style.backgroundColor =
+                  "var(--color-primary-hover)")
               }
               onMouseOut={(e) =>
-              ((e.target as HTMLElement).style.backgroundColor =
-                "var(--color-primary)")
+                ((e.target as HTMLElement).style.backgroundColor =
+                  "var(--color-primary)")
               }
             >
               {selectedFile ? "Change File" : "Select File"}
@@ -336,10 +386,7 @@ export default function Home() {
                   stroke="currentColor"
                   strokeWidth="1.5"
                 />
-                <path
-                  d="M6.5 5.5L10.5 8L6.5 10.5V5.5Z"
-                  fill="currentColor"
-                />
+                <path d="M6.5 5.5L10.5 8L6.5 10.5V5.5Z" fill="currentColor" />
               </svg>
               Try Demo Schedule
             </a>
@@ -354,12 +401,12 @@ export default function Home() {
               borderRadius: "var(--radius-btn)",
             }}
             onMouseOver={(e) =>
-            ((e.target as HTMLElement).style.backgroundColor =
-              "var(--color-primary-hover)")
+              ((e.target as HTMLElement).style.backgroundColor =
+                "var(--color-primary-hover)")
             }
             onMouseOut={(e) =>
-            ((e.target as HTMLElement).style.backgroundColor =
-              "var(--color-primary)")
+              ((e.target as HTMLElement).style.backgroundColor =
+                "var(--color-primary)")
             }
           >
             Generate My Schedule →

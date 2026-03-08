@@ -1,44 +1,41 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenAI } from "@google/genai";
 import { getCourseName } from "@/lib/nebula";
-
+import { buildRoomWarning } from "@/lib/chooseBestRoom";
 const ai = new GoogleGenAI({
-    apiKey: process.env.GEMINI_API_KEY!,
+  apiKey: process.env.GEMINI_API_KEY!,
 });
 
 export async function POST(request: NextRequest) {
-    try {
-        const formData = await request.formData();
-        const file = formData.get("file") as File | null;
+  try {
+    const formData = await request.formData();
+    const file = formData.get("file") as File | null;
 
-        if (!file) {
-            return NextResponse.json(
-                { error: "No file provided" },
-                { status: 400 }
-            );
-        }
+    if (!file) {
+      return NextResponse.json({ error: "No file provided" }, { status: 400 });
+    }
 
-        console.log("── File Upload ──");
-        console.log("  Name:", file.name);
-        console.log("  Type:", file.type);
-        console.log("  Size:", `${(file.size / 1024).toFixed(1)} KB`);
+    console.log("── File Upload ──");
+    console.log("  Name:", file.name);
+    console.log("  Type:", file.type);
+    console.log("  Size:", `${(file.size / 1024).toFixed(1)} KB`);
 
-        const bytes = await file.arrayBuffer();
-        const buffer = Buffer.from(bytes);
-        const base64Image = buffer.toString("base64");
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
+    const base64Image = buffer.toString("base64");
 
-        const result = await ai.models.generateContent({
-            model: "gemini-2.5-flash-lite",
-            // Enable JSON mode to prevent markdown backticks (```json) in the output
-            config: {
-                responseMimeType: "application/json",
-            },
-            contents: [
-                {
-                    role: "user",
-                    parts: [
-                        {
-                            text: `
+    const result = await ai.models.generateContent({
+      model: "gemini-2.5-flash-lite",
+      // Enable JSON mode to prevent markdown backticks (```json) in the output
+      config: {
+        responseMimeType: "application/json",
+      },
+      contents: [
+        {
+          role: "user",
+          parts: [
+            {
+              text: `
 Extract the class schedule from this image.
 
 The text inside the colored blocks generally follows this pattern:
@@ -66,40 +63,42 @@ Rules:
 - Use 24-hour HH:MM format for "startTime" based on the left-hand time grid.
 - One object per class meeting block.
 `,
-                        },
-                        {
-                            inlineData: {
-                                mimeType: file.type,
-                                data: base64Image,
-                            },
-                        },
-                    ],
-                },
-            ],
-        });
+            },
+            {
+              inlineData: {
+                mimeType: file.type,
+                data: base64Image,
+              },
+            },
+          ],
+        },
+      ],
+    });
 
-        const text = result.text;
-        console.log("Gemini result:", text);
+    const text = result.text || "{}";
+    console.log("Gemini result:", text);
 
-        const schedule = JSON.parse(text);
-        await Promise.all(
-            schedule.classes.map(async (cls: any) => {
-                // split the course code into prefix and number (ignore section like "004")
-                const [prefix, number] = cls.courseCode.split("-");
-                cls.courseName = await getCourseName(prefix, number);
-            })
-        );
+    const schedule = JSON.parse(text);
+    await Promise.all(
+      schedule.classes.map(async (cls: any) => {
+        // split the course code into prefix and number (ignore section like "004")
+        const parts = cls.courseCode ? cls.courseCode.split("-") : [];
+        const prefix = parts[0] || "";
+        const number = parts[1] || "";
+        cls.courseName = await getCourseName(prefix, number);
+      }),
+    );
 
-        return NextResponse.json({
-            success: true,
-            fileName: file.name,
-            schedule: schedule,
-        });
-    } catch (err) {
-        console.error("Upload/parse error:", err);
-        return NextResponse.json(
-            { error: "Failed to parse schedule" },
-            { status: 500 }
-        );
-    }
+    return NextResponse.json({
+      success: true,
+      fileName: file.name,
+      schedule: schedule,
+    });
+  } catch (err) {
+    console.error("Upload/parse error:", err);
+    return NextResponse.json(
+      { error: "Failed to parse schedule" },
+      { status: 500 },
+    );
+  }
 }
