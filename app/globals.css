@@ -28,6 +28,7 @@
   --utd-green-light: #e6f0ec;
 }
 
+/* ─── Tailwind v4 theme mapping ─── */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

@@ -47,7 +47,7 @@ import { useSchedule } from "@/app/context/ScheduleContext";
 import toast from "react-hot-toast";
 
 /* ── Inline map iframe shown beneath Navigate buttons ── */
-function MapEmbed({ url, onClose }: { url: string; onClose: () => void }) {
+export function MapEmbed({ url, onClose }: { url: string; onClose: () => void }) {
   return (
     <div className="mt-3 animate-[fadeIn_0.3s_ease-out]">
       <div className="overflow-hidden rounded-lg border border-gray-200 shadow-sm">
@@ -192,7 +192,7 @@ function ClassCard({ cls, virtualNow, isLastClass = false }: { cls: ScheduleClas
 
       {/* Card */}
       <div
-        className={`mb-2 flex-1 rounded-xl border px-6 py-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-transform duration-150 ease-out transform hover:scale-101 hover:shadow-sm cursor-pointer ${isCompleted ? "border-gray-200 bg-gray-50" : "border-gray-200 bg-white"
+        className={`flex-1 rounded-xl border px-6 py-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-transform duration-150 ease-out transform hover:scale-101 hover:shadow-sm cursor-pointer ${isCompleted ? "border-gray-200 bg-gray-50" : "border-gray-200 bg-white"
           }`}
         onClick={() => setShowMap(!showMap)}
       >
@@ -284,40 +284,42 @@ function WalkingIndicator({ segment, isLeaveByActive = false }: { segment: Walki
       <div className="relative flex w-10 shrink-0 flex-col items-center">
         <div className="w-px flex-1 bg-gray-200" />
         <Footprints
-          size={13}
-          className={`my-0.5 transition-colors duration-300 ${isLeaveByActive ? "text-orange-500" : "text-gray-400"
+          size={20}
+          className={`my-1 transition-colors duration-300 ${isLeaveByActive ? "text-orange-500" : "text-gray-400"
             }`}
         />
         <div className="w-px flex-1 bg-gray-200" />
       </div>
 
-      <div className="flex-1 mt-4 mb-4">
-        <div
-          className={`flex items-center justify-between rounded-lg px-5 py-2.5 transition-all duration-300 ${isLeaveByActive
-            ? "border-2 border-orange-400 bg-orange-50 shadow-[0_0_12px_rgba(249,115,22,0.15)] animate-pulse"
-            : "bg-gray-200/80"
-            }`}
-        >
-          <span
-            className={`text-[13px] font-medium transition-colors duration-300 ${isLeaveByActive ? "text-orange-700" : "text-gray-500"
+      <div className="flex-1 my-8 flex justify-center">
+        <div className="w-3/4">
+          <div
+            className={`flex items-center justify-between rounded-lg px-5 py-2.5 transition-all duration-300 ${isLeaveByActive
+              ? "border-2 border-orange-400 bg-orange-50 shadow-[0_0_12px_rgba(249,115,22,0.15)] animate-pulse"
+              : "bg-gray-200/80"
               }`}
           >
-            {isLeaveByActive && "🚶 "}
-            {segment.duration}
-          </span>
-          {segment.directionsUrl && (
-            <button
-              type="button"
-              onClick={() => setShowMap((v) => !v)}
-              className="flex items-center gap-1 text-[12px] font-semibold text-nebula hover:text-nebula-dark transition-colors"
+            <span
+              className={`text-[13px] font-medium transition-colors duration-300 ${isLeaveByActive ? "text-orange-700" : "text-gray-500"
+                }`}
             >
-              <Navigation size={12} /> {showMap ? "Hide Map" : "Navigate"}
-            </button>
+              {isLeaveByActive && "🚶 "}
+              {segment.duration}
+            </span>
+            {segment.directionsUrl && (
+              <button
+                type="button"
+                onClick={() => setShowMap((v) => !v)}
+                className="flex items-center gap-1 text-[12px] font-semibold text-nebula hover:text-nebula-dark transition-colors"
+              >
+                <Navigation size={12} /> {showMap ? "Hide Map" : "Navigate"}
+              </button>
+            )}
+          </div>
+          {showMap && segment.directionsUrl && (
+            <MapEmbed url={segment.directionsUrl} onClose={() => setShowMap(false)} />
           )}
         </div>
-        {showMap && segment.directionsUrl && (
-          <MapEmbed url={segment.directionsUrl} onClose={() => setShowMap(false)} />
-        )}
       </div>
     </div>
   );
@@ -390,75 +392,78 @@ function GapCard({ gap, virtualNow }: { gap: ScheduleGap, virtualNow: Date }) {
       </div>
 
       {/* Gap card */}
-      <div className="my-3 flex-1 rounded-xl border border-indigo-200 bg-nebula-light/50 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-          {/* Left: gap info text — vertically centered */}
-          <div className="flex-1 shrink-0 space-y-3">
-            <div>
-              <div className="flex items-center gap-2">
-                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-nebula/10">
-                  <Clock size={15} className="text-nebula" />
+      <div className="my-8 flex-1 flex justify-center">
+        <div className="w-3/4 rounded-xl border border-indigo-200 bg-nebula-light/50 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+          <div className="flex flex-col md:flex-row items-center md:items-start gap-4">
+            {/* Gap info text */}
+            <div className="space-y-3 md:flex-1">
+              <div>
+                <div className="flex items-center gap-2">
+                  <div className="flex h-7 w-7 items-center justify-center rounded-full bg-nebula/10">
+                    <Clock size={15} className="text-nebula" />
+                  </div>
+                  <span className="text-[15px] font-bold text-indigo-900">
+                    {gap.duration} Gap Detected
+                  </span>
                 </div>
-                <span className="text-[15px] font-bold text-indigo-900">
-                  {gap.duration} Gap Detected
-                </span>
+                <p className="pl-9 text-[13px] text-nebula mt-1">{gap.message}</p>
               </div>
-              <p className="pl-9 text-[13px] text-nebula mt-1">{gap.message}</p>
-            </div>
 
-            {/* AI Suggestion Area */}
-            <div className="pl-9 mt-2">
-              <button
-                onClick={handleGetSuggestion}
-                disabled={isGettingSuggestion}
-                className="flex items-center gap-2 rounded-lg bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-3 py-1.5 text-xs font-bold transition-colors shadow-sm disabled:opacity-70"
-              >
-                {isGettingSuggestion ? (
-                  <Loader2 size={14} className="animate-spin" />
-                ) : (
-                  <Sparkles size={14} />
+              {/* AI Suggestion Area */}
+              <div className="pl-9 mt-2">
+                <button
+                  onClick={handleGetSuggestion}
+                  disabled={isGettingSuggestion}
+                  className="flex items-center gap-2 rounded-lg bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-3 py-1.5 text-xs font-bold transition-colors shadow-sm disabled:opacity-70"
+                >
+                  {isGettingSuggestion ? (
+                    <Loader2 size={14} className="animate-spin" />
+                  ) : (
+                    <Sparkles size={14} />
+                  )}
+                  {isGettingSuggestion ? "Thinking..." : "AI Suggestion"}
+                </button>
+
+                {suggestionText && (
+                  <div className="mt-3 rounded-lg bg-white/80 p-3 text-sm text-indigo-900 border border-indigo-100 animate-[fadeIn_0.3s_ease-out]">
+                    <p className="flex items-start gap-2">
+                      <Sparkles size={14} className="text-indigo-500 mt-0.5 shrink-0" />
+                      <span>{suggestionText}</span>
+                    </p>
+                  </div>
                 )}
-                {isGettingSuggestion ? "Thinking..." : "AI Suggestion"}
-              </button>
-
-              {suggestionText && (
-                <div className="mt-3 rounded-lg bg-white/80 p-3 text-sm text-indigo-900 border border-indigo-100 animate-[fadeIn_0.3s_ease-out]">
-                  <p className="flex items-start gap-2">
-                    <Sparkles size={14} className="text-indigo-500 mt-0.5 shrink-0" />
-                    <span>{suggestionText}</span>
+              </div>
+            </div>
+            {/* Suggested spot + navigate */}
+            <div className="flex flex-col gap-3 md:w-80">
+              {/* Spot card */}
+              <div className="flex items-center justify-between gap-3 rounded-lg border border-gray-200 bg-white px-4 py-3 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
+                <div>
+                  <p className="text-sm font-bold text-gray-900 leading-snug">
+                    {gap.suggestedSpot.name}
+                  </p>
+                  <p className="mt-0.5 text-[12px] text-gray-500">
+                    {gap.suggestedSpot.walkTime} · {gap.suggestedSpot.amenity}
                   </p>
                 </div>
-              )}
-            </div>
-          </div>
-
-          {/* Right: suggested spot + navigate */}
-          <div className="flex flex-col gap-3 w-[55%]">
-            {/* Spot card */}
-            <div className="flex items-center justify-between gap-3 rounded-lg border border-gray-200 bg-white px-4 py-3 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
-              <div>
-                <p className="text-sm font-bold text-gray-900 leading-snug">
-                  {gap.suggestedSpot.name}
-                </p>
-                <p className="mt-0.5 text-[12px] text-gray-500">
-                  {gap.suggestedSpot.walkTime} · {gap.suggestedSpot.amenity}
-                </p>
+                {gap.directionsUrl && (
+                  <button
+                    type="button"
+                    onClick={() => setShowMap((v) => !v)}
+                    className="shrink-0 flex items-center gap-1.5 rounded-lg bg-nebula px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-nebula-dark"
+                  >
+                    <Navigation size={14} /> {showMap ? "Hide Map" : "Navigate"}
+                  </button>
+                )}
               </div>
-              {gap.directionsUrl && (
-                <button
-                  type="button"
-                  onClick={() => setShowMap((v) => !v)}
-                  className="shrink-0 flex items-center gap-1.5 rounded-lg bg-nebula px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-nebula-dark"
-                >
-                  <Navigation size={14} /> {showMap ? "Hide Map" : "Navigate"}
-                </button>
+
+              {/* Inline map iframe (appears below the spot card, spans the spot column) */}
+              {showMap && gap.directionsUrl && (
+                <div>
+                  <MapEmbed url={gap.directionsUrl} onClose={() => setShowMap(false)} />
+                </div>
               )}
             </div>
-
-            {/* Inline map iframe */}
-            {showMap && gap.directionsUrl && (
-              <MapEmbed url={gap.directionsUrl} onClose={() => setShowMap(false)} />
-            )}
           </div>
         </div>
       </div>
@@ -586,13 +591,13 @@ export default function ScheduleTimeline({
   return (
     <section>
       {/* Section heading row */}
-      <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+      <div className="mb-10 flex flex-wrap items-end justify-between gap-4">
         <div>
           <h2 className="text-[28px] font-extrabold text-gray-900 leading-tight">
             {headingLabel}
           </h2>
           <p className="mt-1 text-sm text-gray-500">
-            {dateStr} &bull; {remaining} Class{remaining !== 1 ? "es" : ""} Remaining
+            <strong>Today:</strong> {dateStr} &bull; {remaining} Class{remaining !== 1 ? "es" : ""} Remaining
           </p>
         </div>
         <div className="flex gap-2">

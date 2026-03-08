@@ -42,18 +42,22 @@ function DashboardContent() {
     const { now } = useVirtualClock();
 
     const useDemo = isDemo || (!hasRealData && !isLoading && !error);
-    const { primaryEmptyRoom, sidebarEmptyRooms } = useDynamicRooms(
-        useDemo ? demoClasses : classes,
-        now,
-        useDemo,
-        selectedDay
-    );
-
     // Fire toast notifications when leave-by times are crossed
-    useLeaveByToast(useDemo ? demoClasses : classes, now);
+    // (we'll call this after resolving which class set to use)
 
     const scheduleClasses = useDemo ? demoClasses : classes;
     const scheduleWalking = useDemo ? demoWalking : walkingSegments;
+
+    // Determine dynamic rooms (uses the concrete ScheduleClass[] shape)
+    const { primaryEmptyRoom, sidebarEmptyRooms, fromRoom } = useDynamicRooms(
+        scheduleClasses,
+        now,
+        useDemo,
+        selectedDay,
+    );
+
+    // Fire leave-by toasts using the resolved schedule classes
+    useLeaveByToast(scheduleClasses, now);
 
     // Build gap card: use real empty room data if available
     let scheduleGap = useDemo
@@ -193,6 +197,7 @@ function DashboardContent() {
                             <NearbySpaces
                                 spaces={nearbySpaces}
                                 emptyRooms={useDemo ? [] : sidebarEmptyRooms}
+                                fromRoom={useDemo ? null : fromRoom}
                             />
                         ) : (
                             <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">

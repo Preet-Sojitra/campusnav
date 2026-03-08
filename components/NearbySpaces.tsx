@@ -11,9 +11,11 @@
  * If `emptyRooms` from the API are provided, they replace the static spaces.
  */
 
-import { useState } from "react";
-import { MapPin, Zap, Wifi, Coffee, Navigation, DoorOpen } from "lucide-react";
+import { useState, useCallback, useEffect, useRef } from "react";
+import { MapPin, Zap, Wifi, Coffee, Navigation, DoorOpen, ExternalLink, Loader2 } from "lucide-react";
 import type { NearbySpace, EmptyRoom } from "@/lib/types";
+import { MapEmbed } from "./ScheduleTimeline";
+import { resolveRoute } from "@/app/context/ScheduleContext";
 
 const STATUS_STYLE: Record<string, string> = {
     available: "bg-utd-green-light text-utd-green",
@@ -41,7 +43,7 @@ function emptyRoomToSpace(room: EmptyRoom, index: number): NearbySpace {
         status: "available",
         amenity: "Empty classroom",
         walkTime: room._walkDurationStr || "Nearby",
-        _directionsUrl: room._directionsUrl,
+        directionsUrl: room._directionsUrl ?? null,
     };
 }
 
@@ -49,14 +51,54 @@ function SpaceItem({
     space,
     isSelected,
     onSelect,
+    fromRoom,
 }: {
     space: NearbySpace;
     isSelected: boolean;
     onSelect: () => void;
+    fromRoom: string | null;
 }) {
+    const [showMap, setShowMap] = useState(false);
+    const [mapUrl, setMapUrl] = useState<string | null>(space.directionsUrl ?? null);
+    const [isResolving, setIsResolving] = useState(false);
+
+    // Close the map when this item is deselected
+    useEffect(() => {
+        if (!isSelected) setShowMap(false);
+    }, [isSelected]);
+
+    const handleNavigate = useCallback(async (e: React.MouseEvent) => {
+        e.stopPropagation();
+
+        // If already showing map, just toggle off
+        if (showMap) {
+            setShowMap(false);
+            return;
+        }
+
+        // If we already have a URL, show the map
+        if (mapUrl) {
+            setShowMap(true);
+            return;
+        }
+
+        // Resolve on-demand using the same fromRoom as GapCard
+        if (!fromRoom) return;
+        setIsResolving(true);
+        try {
+            const route = await resolveRoute(fromRoom, space.name);
+            if (route.directionsUrl) {
+                setMapUrl(route.directionsUrl);
+                setShowMap(true);
+            }
+        } finally {
+            setIsResolving(false);
+        }
+    }, [showMap, mapUrl, fromRoom, space.name]);
+
     return (
         <div
-            className={`py-3.5 border-b border-gray-100 last:border-b-0  cursor-pointer hover:border hover:border-nebula-light hover:border-2 rounded-lg transition-colors ${isSelected ? "bg-nebula-light/60 -mx-2 px-2" : "hover:bg-gray-50 -mx-2 px-2"}`}
+            className={`py-3.5 border-b border-gray-100 last:border-b-0 cursor-pointer hover:border hover:border-nebula-light hover:border-2 rounded-lg transition-colors ${isSelected ? "bg-nebula-light/60 -mx-2 px-2" : "hover:bg-gray-50 -mx-2 px-2"}`}
             onClick={onSelect}
             onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") onSelect();
@@ -76,16 +118,13 @@ function SpaceItem({
                 </span>
             </div>
 
-            {/* Building */}
-            <p className="mt-0.5 text-[12px] text-gray-400">{space.building}</p>
-
             {/* Amenity + walk time */}
             <div className="mt-1.5 flex items-center justify-between text-[11.5px] text-gray-400">
                 <span className="flex items-center gap-1">
+                    {space.walkTime} ·
                     {AMENITY_ICON[space.amenity] ?? <Zap size={12} className="text-gray-400" />}
                     {space.amenity}
                 </span>
-                <span>{space.walkTime}</span>
             </div>
 
             {/* Navigate button — slides in when selected */}
@@ -94,17 +133,27 @@ function SpaceItem({
             >
                 <button
                     type="button"
-                    className="flex w-full items-center justify-center gap-2 rounded-lg bg-nebula py-2 text-sm font-semibold text-white transition-colors hover:bg-nebula-dark"
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        // Provide a fallback if directionsUrl is not available, open the general map
-                        const url = space._directionsUrl || "https://map.utdallas.edu/";
-                        window.open(url, "_blank");
-                    }}
+                    className="flex w-full items-center justify-center gap-2 rounded-lg bg-nebula py-2 text-sm font-semibold text-white transition-colors hover:bg-nebula-dark disabled:opacity-60"
+                    onClick={handleNavigate}
+                    disabled={isResolving}
                 >
-                    <Navigation size={14} /> Navigate
+                    {isResolving ? (
+                        <><Loader2 size={14} className="animate-spin" /> Loading…</>
+                    ) : (
+                        <><Navigation size={14} /> {showMap ? "Hide Map" : "Navigate"}</>
+                    )}
                 </button>
             </div>
+
+            {/* Map embed — rendered outside the overflow-hidden container so the iframe isn't clipped */}
+            {showMap && mapUrl && (
+                <div onClick={(e) => e.stopPropagation()}>
+                    <MapEmbed
+                        url={mapUrl}
+                        onClose={() => setShowMap(false)}
+                    />
+                </div>
+            )}
         </div>
     );
 }
@@ -113,10 +162,24 @@ interface NearbySpacesProps {
     spaces: NearbySpace[];
     /** Real empty rooms from the API — when present, replaces static demo data */
     emptyRooms?: EmptyRoom[];
+    /** The "from" room location (same origin as GapCard) for directions */
+    fromRoom?: string | null;
 }
 
-export default function NearbySpaces({ spaces, emptyRooms = [] }: NearbySpacesProps) {
+export default function NearbySpaces({ spaces, emptyRooms = [], fromRoom = null }: NearbySpacesProps) {
     const [selectedId, setSelectedId] = useState<string | null>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
+
+    // Deselect when clicking outside the component
+    useEffect(() => {
+        function handleClick(e: MouseEvent) {
+            if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+                setSelectedId(null);
+            }
+        }
+        document.addEventListener("mousedown", handleClick);
+        return () => document.removeEventListener("mousedown", handleClick);
+    }, []);
 
     // Use real empty rooms if available, otherwise fall back to static data
     const displaySpaces =
@@ -125,7 +188,7 @@ export default function NearbySpaces({ spaces, emptyRooms = [] }: NearbySpacesPr
             : spaces;
 
     return (
-        <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+        <div ref={containerRef} className="rounded-xl border border-gray-200 bg-white p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
             {/* Header */}
             <div className="flex items-center justify-between mb-1">
                 <div className="flex items-center gap-2">
@@ -151,6 +214,7 @@ export default function NearbySpaces({ spaces, emptyRooms = [] }: NearbySpacesPr
                         onSelect={() =>
                             setSelectedId(selectedId === space.id ? null : space.id)
                         }
+                        fromRoom={fromRoom}
                     />
                 ))}
             </div>

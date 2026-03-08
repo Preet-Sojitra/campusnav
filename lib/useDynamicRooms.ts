@@ -8,6 +8,7 @@ const GAP_THRESHOLD_MINUTES = 45;
 export function useDynamicRooms(classes: ScheduleClass[], now: Date, isDemo: boolean, selectedDay: string) {
     const [primaryEmptyRoom, setPrimaryEmptyRoom] = useState<EmptyRoom | null>(null);
     const [sidebarEmptyRooms, setSidebarEmptyRooms] = useState<EmptyRoom[]>([]);
+    const [fromRoom, setFromRoom] = useState<string | null>(null);
     const lastFetchedGapRef = useRef<string | null>(null);
 
     useEffect(() => {
@@ -35,11 +36,13 @@ export function useDynamicRooms(classes: ScheduleClass[], now: Date, isDemo: boo
             // No upcoming gaps
             setPrimaryEmptyRoom(null);
             setSidebarEmptyRooms([]);
+            setFromRoom(null);
             lastFetchedGapRef.current = null;
             return;
         }
 
-        const fromRoom = classes[activeGapIndex].location;
+        const gapFromRoom = classes[activeGapIndex].location;
+        setFromRoom(gapFromRoom);
         const toRoom = classes[activeGapIndex + 1].location;
         const gapStartTimeStr = classes[activeGapIndex].endTime; // 12-hr format
 
@@ -56,7 +59,7 @@ export function useDynamicRooms(classes: ScheduleClass[], now: Date, isDemo: boo
             lastFetchedGapRef.current = gapKey;
 
             const params = new URLSearchParams({
-                from: fromRoom,
+                from: gapFromRoom,
                 to: toRoom,
                 day: selectedDay,
                 startTime: gapStartTime24,
@@ -75,19 +78,20 @@ export function useDynamicRooms(classes: ScheduleClass[], now: Date, isDemo: boo
 
                         // Route resolution
                         Promise.all(rooms.map(async (r) => {
-                            const fromBuilding = fromRoom.split(" ")[0];
+                            const fromBuilding = gapFromRoom.split(" ")[0];
                             const toBuilding = r.room.split(" ")[0];
+
+                            const route = await resolveRoute(gapFromRoom, r.room);
 
                             if (fromBuilding === toBuilding) {
                                 return {
                                     ...r,
                                     _walkDurationStr: "1 min walk",
-                                    _directionsUrl: null,
+                                    _directionsUrl: route.directionsUrl,
                                     _walkSeconds: 60,
                                 };
                             }
 
-                            const route = await resolveRoute(fromRoom, r.room);
                             return {
                                 ...r,
                                 _walkDurationStr: route.formattedDuration ? `${route.formattedDuration} walk` : "Nearby",
@@ -110,5 +114,5 @@ export function useDynamicRooms(classes: ScheduleClass[], now: Date, isDemo: boo
 
     }, [classes, now, isDemo, selectedDay]);
 
-    return { primaryEmptyRoom, sidebarEmptyRooms };
+    return { primaryEmptyRoom, sidebarEmptyRooms, fromRoom };
 }
