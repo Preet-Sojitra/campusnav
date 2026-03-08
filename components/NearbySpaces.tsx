@@ -11,7 +11,7 @@
  * If `emptyRooms` from the API are provided, they replace the static spaces.
  */
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { MapPin, Zap, Wifi, Coffee, Navigation, DoorOpen, ExternalLink, Loader2 } from "lucide-react";
 import type { NearbySpace, EmptyRoom } from "@/lib/types";
 import { MapEmbed } from "./ScheduleTimeline";
@@ -61,6 +61,11 @@ function SpaceItem({
     const [showMap, setShowMap] = useState(false);
     const [mapUrl, setMapUrl] = useState<string | null>(space.directionsUrl ?? null);
     const [isResolving, setIsResolving] = useState(false);
+
+    // Close the map when this item is deselected
+    useEffect(() => {
+        if (!isSelected) setShowMap(false);
+    }, [isSelected]);
 
     const handleNavigate = useCallback(async (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -163,6 +168,18 @@ interface NearbySpacesProps {
 
 export default function NearbySpaces({ spaces, emptyRooms = [], fromRoom = null }: NearbySpacesProps) {
     const [selectedId, setSelectedId] = useState<string | null>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
+
+    // Deselect when clicking outside the component
+    useEffect(() => {
+        function handleClick(e: MouseEvent) {
+            if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+                setSelectedId(null);
+            }
+        }
+        document.addEventListener("mousedown", handleClick);
+        return () => document.removeEventListener("mousedown", handleClick);
+    }, []);
 
     // Use real empty rooms if available, otherwise fall back to static data
     const displaySpaces =
@@ -171,7 +188,7 @@ export default function NearbySpaces({ spaces, emptyRooms = [], fromRoom = null 
             : spaces;
 
     return (
-        <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+        <div ref={containerRef} className="rounded-xl border border-gray-200 bg-white p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
             {/* Header */}
             <div className="flex items-center justify-between mb-1">
                 <div className="flex items-center gap-2">
