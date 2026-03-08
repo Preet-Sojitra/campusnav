@@ -42,11 +42,13 @@ export async function GET(request) {
 
     const payload = { url };
 
-    // 3. Save to Cache in background (best-effort; ignore if DB still down)
+    // 3. Save to Cache in background (best-effort; upsert avoids duplicate key errors)
     try {
-      MapCache.create({ cacheKey, routeData: payload }).catch(err =>
-        console.error("Failed to save direction cache:", err)
-      );
+      MapCache.findOneAndUpdate(
+        { cacheKey },
+        { cacheKey, routeData: payload },
+        { upsert: true, new: true },
+      ).catch((err) => console.error("Failed to save direction cache:", err));
     } catch (_) {}
 
     return NextResponse.json(payload, { status: 200 });

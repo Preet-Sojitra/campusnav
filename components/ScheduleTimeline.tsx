@@ -24,14 +24,12 @@
  */
 
 import { useState } from "react";
-import Image from "next/image";
 import {
   MapPin,
   User,
   Footprints,
   Clock,
   Navigation,
-  Headphones,
   Calendar,
   Map as MapIcon,
   CheckCircle2,
@@ -321,46 +319,27 @@ function GapCard({ gap }: { gap: ScheduleGap }) {
             <p className="pl-9 text-[13px] text-nebula">{gap.message}</p>
           </div>
 
-          {/* Right: suggested spot + action buttons stacked */}
+          {/* Right: suggested spot + navigate */}
           <div className="flex flex-col gap-3 w-[55%]">
             {/* Spot card */}
-            <div className="flex gap-3 rounded-lg border border-gray-200 bg-white p-3 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
-              <div className="flex shrink-0 items-center justify-center overflow-hidden rounded-md w-[100px] h-[100px]">
-                <Image src="/map.jpg" alt="Suggested study spot" width={100} height={100} />
-              </div>
-              <div className="flex flex-col justify-center gap-1">
-                <span className="text-[9px] font-extrabold uppercase tracking-[0.08em] text-nebula">
-                  {gap.suggestedSpot.badge}
-                </span>
+            <div className="flex items-center justify-between gap-3 rounded-lg border border-gray-200 bg-white px-4 py-3 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
+              <div>
                 <p className="text-sm font-bold text-gray-900 leading-snug">
                   {gap.suggestedSpot.name}
                 </p>
-                <div className="flex items-center gap-3 text-[11px] text-gray-500">
-                  <span className="flex items-center gap-1">
-                    <Footprints size={11} /> {gap.suggestedSpot.walkTime}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    ⚡ {gap.suggestedSpot.amenity}
-                  </span>
-                </div>
+                <p className="mt-0.5 text-[12px] text-gray-500">
+                  {gap.suggestedSpot.walkTime} · {gap.suggestedSpot.amenity}
+                </p>
               </div>
-            </div>
-
-            {/* Action buttons — equal width, below the spot card */}
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                type="button"
-                onClick={() => setShowMap((v) => !v)}
-                className="flex items-center justify-center gap-2 rounded-lg bg-nebula px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-nebula-dark"
-              >
-                <Navigation size={14} /> {showMap ? "Hide Map" : "Navigate"}
-              </button>
-              <button
-                type="button"
-                className="flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50"
-              >
-                <Headphones size={14} /> Summary
-              </button>
+              {gap.directionsUrl && (
+                <button
+                  type="button"
+                  onClick={() => setShowMap((v) => !v)}
+                  className="shrink-0 flex items-center gap-1.5 rounded-lg bg-nebula px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-nebula-dark"
+                >
+                  <Navigation size={14} /> {showMap ? "Hide Map" : "Navigate"}
+                </button>
+              )}
             </div>
 
             {/* Inline map iframe */}
@@ -450,7 +429,11 @@ export default function ScheduleTimeline({
 
       const gapForCard = gaps[gapIndex];
       if (gapMinutes >= 45 && gapForCard?.suggestedSpot?.name) {
-        timelineItems.push(<GapCard key={`gap-${i}`} gap={gapForCard} />);
+        // Fall back to the walking segment's directionsUrl if the gap object doesn't have one.
+        const gapWithUrl = gapForCard.directionsUrl
+          ? gapForCard
+          : { ...gapForCard, directionsUrl: segment?.directionsUrl ?? null };
+        timelineItems.push(<GapCard key={`gap-${i}`} gap={gapWithUrl} />);
         gapIndex++;
       } else if (segment) {
         // Determine if leave-by time has passed for this class
