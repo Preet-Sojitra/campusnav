@@ -12,8 +12,6 @@ We've all been there: it's Wednesday, you have a 3-hour gap between Data Structu
 
 It transforms your static college schedule into a real-time, interactive, AI-driven dashboard. Not only does it tell you where to walk, but it actively monitors the timeline of your day to find empty rooms, give live walking directions, and—crucially—uses AI to nag you (productively) about what you *should* be studying right now. 
 
-*(Oh, and it was entirely built by an AI agent—Google's Antigravity model—but more on that later).* 😉
-
 ---
 
 ## ✨ Core Features
